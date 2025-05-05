@@ -1,13 +1,13 @@
 import { z } from "zod";
 export const COMP_NAME = "MyComp";
-import { staticFile } from "remotion";
+// import { staticFile } from "remotion";
 
 export const CompositionProps = z.object({
-  src: z.string(),
+  title: z.string(),
 });
 
 export const defaultMyCompProps: z.infer<typeof CompositionProps> = {
-  src: staticFile("/sample-video.mp4"),
+  title: "h",
 };
 
 export const DURATION_IN_FRAMES = 550;
