@@ -1,4 +1,4 @@
-import { staticFile } from "remotion";
+
 import { z } from "zod";
 export const COMP_NAME = "MyComp";
 // import { staticFile } from "remotion";
@@ -10,7 +10,7 @@ export const CompositionProps = z.object({
 
 export const defaultMyCompProps: z.infer<typeof CompositionProps> = {
   title: "h",
-  src: staticFile("/sample-video.mp4")
+  src: "https://storage.googleapis.com/tanglish/sample-video1.mp4"
 };
 
 export const DURATION_IN_FRAMES = 550;
