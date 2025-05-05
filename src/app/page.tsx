@@ -23,6 +23,7 @@ const Home: NextPage = () => {
   const inputProps: z.infer<typeof CompositionProps> = useMemo(() => {
     return {
       title: text,
+      src: "https://storage.googleapis.com/tanglish/sample-video1.mp4"
     };
   }, [text]);
 
