@@ -1,8 +1,10 @@
+
 import { z } from "zod";
 export const COMP_NAME = "MyComp";
 
 export const CompositionProps = z.object({
-  src: z.string(),
+  title: z.string(),
+  src: z.string()
 });
 
 export const defaultMyCompProps: z.infer<typeof CompositionProps> = {

@@ -1,26 +1,26 @@
-"use client"
-import { continueRender, delayRender, staticFile } from "remotion";
+// "use client"
+// import { continueRender, delayRender, staticFile } from "remotion";
 
-export const TheBoldFont = `TheBoldFont`;
+// export const TheBoldFont = `TheBoldFont`;
 
-let loaded = false;
+// let loaded = false;
 
-export const loadFont = async (): Promise<void> => {
-  if (loaded) {
-    return Promise.resolve();
-  }
+// export const loadFont = async (): Promise<void> => {
+//   if (loaded) {
+//     return Promise.resolve();
+//   }
 
-  const waitForFont = delayRender();
+//   const waitForFont = delayRender();
 
-  loaded = true;
+//   loaded = true;
 
-  const font = new FontFace(
-    TheBoldFont,
-    `url('${staticFile("theboldfont.ttf")}') format('truetype')`,
-  );
+//   const font = new FontFace(
+//     TheBoldFont,
+//     `url('${staticFile("theboldfont.ttf")}') format('truetype')`,
+//   );
 
-  await font.load();
-  document.fonts.add(font);
+//   await font.load();
+//   document.fonts.add(font);
 
-  continueRender(waitForFont);
-};
+//   continueRender(waitForFont);
+// };
