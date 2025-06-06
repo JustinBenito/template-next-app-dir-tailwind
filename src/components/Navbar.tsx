@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 export default function Nav() {
 //   const { user, signOut } = useAuth();
-const user = null;
-const signOut = () => {};
+// const user = null;
+// const signOut = () => {};
 
   return (
 <nav className="fixed z-50 w-full
@@ -26,7 +26,7 @@ const signOut = () => {};
       </div>
 
       <div className="flex items-center gap-4">
-        {user ? (
+        {/* {user ? (
           <>   
             <button
               onClick={signOut}
@@ -49,7 +49,7 @@ const signOut = () => {};
               Sign up
             </button>
           </Link>
-        )}
+        )} */}
       </div>
 
       </div>
