@@ -33,7 +33,8 @@ const Tip: React.FC<{
 export const Tips: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row font-geist">
-      <Tip
+      <p>Hi Helo Vanakkam</p>
+      {/* <Tip
         href="https://www.remotion.dev/docs/the-fundamentals"
         title="Learn Remotion"
         description="Learn how to customize this video written in React."
@@ -47,7 +48,7 @@ export const Tips: React.FC = () => {
         href="https://remotion.dev/discord"
         title="Join the community"
         description="Chat with others builders on Discord."
-      ></Tip>
+      ></Tip> */}
     </div>
   );
 };
