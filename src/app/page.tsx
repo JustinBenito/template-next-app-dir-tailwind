@@ -15,8 +15,8 @@ import {
 import { RenderControls } from "../components/RenderControls";
 import { Spacing } from "../components/Spacing";
 import { Tips } from "../components/Tips";
-import { Main } from "../remotion/MyComp/Main";
-import FileDrop from "../components/FileUploader"; // Adjust path based on where your uploader is located
+import { Main } from "../remotion/MyComp/Main";// Adjust path based on where your uploader is located
+import HomePage from "../components/HomePage";
 
 const Home: NextPage = () => {
   const [uploadedURL, setUploadedURL] = useState<string | null>(null);
@@ -27,6 +27,14 @@ const Home: NextPage = () => {
       src: uploadedURL!,
     };
   }, [uploadedURL]);
+
+  const handleGenerateReel = async (url: string) => {
+    console.log("Blog URL", url);
+    // const res = await fetch(`/api/get-reel?url=${url}`);
+    // const data = await res.json();
+    // console.log(data);
+    setUploadedURL(url);
+  };
 
   useEffect(() => {
     if (!uploadedURL) return;
@@ -81,7 +89,8 @@ const Home: NextPage = () => {
         <Tips />
       </div>
       ) : (
-        <FileDrop onUploadComplete={(url) => setUploadedURL(url)} />
+        // <FileDrop onUploadComplete={(url) => setUploadedURL(url)} />
+        <HomePage onGenerateReel={handleGenerateReel} />
       )}
     </div>
   );
