@@ -1,9 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { CloudArrowUp } from "@phosphor-icons/react";
 
-export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url: string) => void }) {
+type FileDropProps = {
+  onUploadComplete: (url: string) => void;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setStepIndex: Dispatch<SetStateAction<number>>;
+};
+
+export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex }: FileDropProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileURL, setFileURL] = useState<string | null>(null);
@@ -67,8 +73,11 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
-
+    setShowModal(true);
+    setStepIndex(0); // Uploading
     try {
+      // Step 1: Uploading
+      setStepIndex(0);
       const res = await fetch("/api/upload-url", {
         method: "POST",
         headers: {
@@ -79,26 +88,22 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
           contentType: file.type,
         }),
       });
-
       if (!res.ok) throw new Error("Failed to get upload URL");
-
-      const { uploadUrl, fileUrl, captionUrl } = await res.json();
-      console.log(captionUrl)
-
+      const { uploadUrl, fileUrl } = await res.json();
+      // Step 2: Upload file
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": file.type },
         body: file,
       });
-
       if (!uploadRes.ok) throw new Error("Upload failed");
-
+      setStepIndex(0); // Still uploading
+      // Step 3: Simulate delay for fun
+      await new Promise((resolve) => setTimeout(resolve, 800));
       setUploadedURL(fileUrl);
-      onUploadComplete(fileUrl); // 👈 pass URL to parent
-      alert("Upload successful and Captions are Ready!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred during upload.");
+      onUploadComplete(fileUrl); // Parent will handle next steps
+    } catch {
+      setShowModal(false);
     } finally {
       setIsUploading(false);
     }
