@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import FileUploader from './FileUploader';
+import { Dispatch, SetStateAction } from 'react';
 
-export default function Hero({ onUploadComplete }: { onUploadComplete: (url: string) => void }) {
-    const [uploadedURL, setUploadedURL] = useState<string | null>(null);
+type HeroProps = {
+  onUploadComplete: (url: string) => void;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setStepIndex: Dispatch<SetStateAction<number>>;
+};
+
+export default function Hero({ onUploadComplete, setShowModal, setStepIndex }: HeroProps) {
     const orbitRef = useRef<HTMLDivElement>(null);
-
-  
-    useEffect(() => {
-        setUploadedURL(uploadedURL);
-        onUploadComplete(uploadedURL!); 
-    }, [uploadedURL]);
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-black">
@@ -31,16 +31,11 @@ export default function Hero({ onUploadComplete }: { onUploadComplete: (url: str
                 <div className="flex flex-col items-center justify-center space-y-6 text-center">
                     {/* Header */}
 
-                    <div className='mt-24 items-center justify-center z-50 px-4   
-     flex py-2 
-     bg-white/10 backdrop-blur-lg border border-white/20 
-     shadow-xl rounded-full md:text-sm  text-[10px]'>
-                        ⚡ Generate Tanglish Captions with AI
+                    <div className='mt-24 items-center justify-center z-50 px-4   flex py-2  bg-white/10 backdrop-blur-lg border border-white/20  shadow-xl rounded-full md:text-sm  text-[10px]'>
+                        ⚡ 100% Free to use, no limits
                     </div>
 
-
                     <h1 className="max-w-4xl  py-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-5xl font-bold text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
-                    {/* Reels ah kudunga<br />Captions ah edunga */}
                     Stop wasting hours <br /> captioning your reels
                     </h1>
 
@@ -51,7 +46,11 @@ export default function Hero({ onUploadComplete }: { onUploadComplete: (url: str
 
                     {/* FileUploader Component */}
                     <div className="w-full mt-8 max-w-3xl">
-                        <FileUploader onUploadComplete={(url) => setUploadedURL(url)} />
+                        <FileUploader
+                          onUploadComplete={onUploadComplete}
+                          setShowModal={setShowModal}
+                          setStepIndex={setStepIndex}
+                        />
                     </div>
 
                 </div>

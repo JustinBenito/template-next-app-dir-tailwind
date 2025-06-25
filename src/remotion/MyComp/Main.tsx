@@ -42,7 +42,8 @@ const SWITCH_CAPTIONS_EVERY_MS = 200;
 
 export const Main:React.FC<{
   src: string;
-}> = ({ src }) => {
+  captions?: any[];
+}> = ({ src, captions }) => {
   const [subtitles, setSubtitles] = useState<Caption[] | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [handle] = useState(() => delayRender());
@@ -52,28 +53,22 @@ export const Main:React.FC<{
   useEffect(() => {
     const prepareResources = async () => {
       try {
-        // Load font first
         await loadFont();
-
-        // Prefetch video with higher priority
+        if (captions && captions.length > 0) {
+          setSubtitles(captions);
+          setIsReady(true);
+          continueRender(handle);
+          return;
+        }
+        // Fallback: fetch from server
         const {waitUntilDone} = prefetch(`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src}`, {
           method: 'blob-url',
-          onProgress: (progress) => {
-            if (progress.totalBytes) {
-              console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes * 100) + '%');
-            }
-          },
         });
-
-        // Load subtitles in parallel
         const [subtitleResponse] = await Promise.all([
           fetch(`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src.replace(".mp4",".json")}`),
-          waitUntilDone() // Wait for video to be fully loaded
+          waitUntilDone()
         ]);
-        
         const data = await subtitleResponse.json();
-        
-        // Set subtitles and mark as ready
         setSubtitles(data);
         setIsReady(true);
         continueRender(handle);
@@ -81,9 +76,8 @@ export const Main:React.FC<{
         console.error("Error during preparation", e);
       }
     };
-
     prepareResources();
-  }, [src, handle]);
+  }, [src, captions, handle]);
 
   const { pages } = useMemo(() => {
     if (!subtitles) return { pages: [] };
@@ -119,11 +113,14 @@ export const Main:React.FC<{
       </AbsoluteFill>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
-        const subtitleStartFrame = Math.floor(((page.startMs+2000) / 1000) * fps);
-        const subtitleEndFrame = Math.min(
-          nextPage ? Math.floor(((nextPage.startMs) / 1000) * fps) : Infinity,
-          subtitleStartFrame + Math.floor((SWITCH_CAPTIONS_EVERY_MS / 1000) * fps)
-        );
+        const subtitleStartFrame = Math.floor(((page.startMs) / 1000) * fps);
+const subtitleEndFrame = Math.max(
+  nextPage ? Math.floor((nextPage.startMs / 1000) * fps) : Infinity,
+  Math.max(
+    subtitleStartFrame + Math.floor((SWITCH_CAPTIONS_EVERY_MS / 1000) * fps)
+  )
+);
+
         const durationInFrames = subtitleEndFrame - subtitleStartFrame;
         
         if (durationInFrames <= 0) return null;
