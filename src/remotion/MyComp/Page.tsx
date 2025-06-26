@@ -92,7 +92,7 @@ export const Page: React.FC<{
                   color: active ? HIGHLIGHT_COLOR : "white",
                 }}
               >
-                {t.text}
+                {t.text.startsWith(" ") ? t.text : " " + t.text.trimStart()}
               </span>
             );
           })}

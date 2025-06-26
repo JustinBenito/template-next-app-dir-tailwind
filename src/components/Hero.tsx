@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import FileUploader from './FileUploader';
 import { Dispatch, SetStateAction } from 'react';
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 type HeroProps = {
   onUploadComplete: (url: string) => void;
@@ -31,7 +32,7 @@ export default function Hero({ onUploadComplete, setShowModal, setStepIndex }: H
                 <div className="flex flex-col items-center justify-center space-y-6 text-center">
                     {/* Header */}
 
-                    <div className='mt-24 items-center justify-center z-50 px-4   flex py-2  bg-white/10 backdrop-blur-lg border border-white/20  shadow-xl rounded-full md:text-sm  text-[10px]'>
+                    <div className='mt-24 items-center justify-center z-50 px-4   flex py-2  bg-white/10 backdrop-blur-lg border border-white/20  shadow-xl rounded-full md:text-sm text-white text-[10px]'>
                         ⚡ 100% Free to use, no limits
                     </div>
 
@@ -46,11 +47,21 @@ export default function Hero({ onUploadComplete, setShowModal, setStepIndex }: H
 
                     {/* FileUploader Component */}
                     <div className="w-full mt-8 max-w-3xl">
+                      <SignedIn>
                         <FileUploader
                           onUploadComplete={onUploadComplete}
                           setShowModal={setShowModal}
                           setStepIndex={setStepIndex}
                         />
+                      </SignedIn>
+                      <SignedOut>
+                        <div className="flex flex-col items-center justify-center gap-4 p-8 bg-white/10 rounded-xl border border-white/20 shadow-lg">
+                          <p className="text-lg text-white font-semibold">Sign in to upload your video and generate captions!</p>
+                          <SignInButton mode="modal">
+                            <button className="bg-red-800 text-white px-6 py-2 rounded-full font-bold text-base hover:bg-red-700 transition">Sign in to upload</button>
+                          </SignInButton>
+                        </div>
+                      </SignedOut>
                     </div>
 
                 </div>

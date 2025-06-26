@@ -1,11 +1,9 @@
 'use client';
 import Link from 'next/link';
-import Image from 'next/image';
+import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
-export default function Nav() {
-//   const { user, signOut } = useAuth();
-const user = null;
-const signOut = () => {};
+export default function Nav({ onHomeClick }: { onHomeClick?: () => void }) {
+// Clerk handles user state
 
   return (
 <nav className="fixed z-50 w-full
@@ -16,40 +14,39 @@ const signOut = () => {};
       <div className='max-w-7xl mx-auto items-center justify-between w-full flex'>
 
       <div className="flex max-w-7xl items-center">
-        <Link href="/">
-          <div className="bg-white text-black font-bold px-4 py-2 rounded-full cursor-pointer transition hover:opacity-90">
+        {onHomeClick ? (
+          <button
+            type="button"
+            onClick={onHomeClick}
+            className="bg-white text-black font-bold px-4 py-2 rounded-full cursor-pointer transition hover:opacity-90 border-none outline-none"
+            style={{ appearance: 'none' }}
+          >
             <span className="">
               <span className="text-red-800">tanglish</span>captions.com
             </span>
-          </div>
-        </Link>
+          </button>
+        ) : (
+          <Link href="/">
+            <div className="bg-white text-black font-bold px-4 py-2 rounded-full cursor-pointer transition hover:opacity-90">
+              <span className="">
+                <span className="text-red-800">tanglish</span>captions.com
+              </span>
+            </div>
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
-        {user ? (
-          <>   
-            <button
-              onClick={signOut}
-              className="bg-red-800 border border-white/30 px-6 py-2.5 cursor-pointer rounded-full text-sm font-medium hover:opacity-90 transition"
-            >
-            <span className='text-white'>Sign out</span> 
-            </button>
-            <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition">
-              <Image  
-                src={user?.identities[0].identity_data.avatar_url || "/default-avatar.png"} 
-                alt="User Avatar" 
-                className="w-8 h-8 rounded-full border border-black"
-              />
-              <span className="text-sm md:block hidden font-medium text-black">{user?.identities[0].identity_data.name || "Profile"}</span>
-            </Link>
-          </>
-        ) : (
-          <Link href="/login">
+        <SignedIn>
+          <UserButton afterSignOutUrl="/" />
+        </SignedIn>
+        <SignedOut>
+          <SignInButton mode="modal">
             <button className="bg-red-800 border border-white/30 cursor-pointer text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition">
-              Sign up
+              Sign in
             </button>
-          </Link>
-        )}
+          </SignInButton>
+        </SignedOut>
       </div>
 
       </div>

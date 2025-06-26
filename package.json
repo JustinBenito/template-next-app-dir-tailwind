@@ -17,6 +17,8 @@
     "deploy": "node deploy.mjs"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.32.2",
+    "@clerk/nextjs": "^6.23.1",
     "@google/genai": "^0.12.0",
     "@phosphor-icons/react": "^2.1.7",
     "@remotion/animation-utils": "4.0.296",

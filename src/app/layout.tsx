@@ -1,5 +1,7 @@
 import "../../styles/global.css";
 import { Metadata, } from "next";
+import { ClerkProvider } from '@clerk/nextjs';
+
 
 export const metadata: Metadata = {
   title: "Tanglish Captions",
@@ -18,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-background">{children}</body>
-    </html>
+<ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

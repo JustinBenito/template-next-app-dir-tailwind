@@ -16,12 +16,21 @@ import { Main } from "../remotion/MyComp/Main";
 import Hero from "../components/Hero";
 import { Caption } from "@remotion/captions";
 import { RenderControls } from "../components/RenderControls";
+import { ProgressModal } from "../components/ProgressModal";
+import Later from "../components/Demo";
+import Nav from "../components/Navbar";
 
 const Home: NextPage = () => {
   const [uploadedURL, setUploadedURL] = useState<string | null>(null);
   const [captions, setCaptions] = useState<Caption[]>([]);
   const editorRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
+  // Progress modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalStep, setModalStep] = useState<"uploading" | "generating" | "rendering" | "done" | "error">("uploading");
+  const [modalProgress, setModalProgress] = useState(0.1);
+  const [modalError, setModalError] = useState<string | undefined>(undefined);
+
   const inputProps: z.infer<typeof CompositionProps> = useMemo(() => {
     return {
       src: uploadedURL!,
@@ -29,19 +38,53 @@ const Home: NextPage = () => {
     };
   }, [uploadedURL, captions]);
 
+  // Animate progress bar for fun
+  useEffect(() => {
+    if (!modalOpen || modalStep === "done" || modalStep === "error") return;
+    let raf: number;
+    const start = performance.now();
+    const animate = (now: number) => {
+      const elapsed = (now - start) / 1000;
+      // Animate progress, but never reach 1 unless done
+      let base = 0.1;
+      if (modalStep === "uploading") base = 0.1 + 0.3 * Math.sin(elapsed * 1.2);
+      if (modalStep === "generating") base = 0.4 + 0.2 * Math.sin(elapsed * 1.5);
+      if (modalStep === "rendering") base = 0.6 + 0.3 * Math.sin(elapsed * 1.1);
+      setModalProgress(Math.min(0.98, Math.abs(base)));
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [modalOpen, modalStep]);
+
   useEffect(() => {
     if (!uploadedURL) return;
     const fetchCaptions = async () => {
+      setModalStep("generating");
+      setModalOpen(true);
+      setModalError(undefined);
       try {
         const res = await fetch(`/api/get-captions?url=${uploadedURL}`);
         const data = await res.json();
         if (data?.json) {
           await loadFont();
-          setCaptions(data.json);
+          setCaptions(data.json.map((c: Caption) => ({
+            ...c,
+            text: c.text.startsWith(" ") ? c.text : " " + c.text.trimStart(),
+          })));
           setTimeout(() => {
+            setModalStep("done");
+            setModalProgress(1);
+            setTimeout(() => setModalOpen(false), 1200);
           }, 800);
+        } else {
+          throw new Error("No captions returned");
         }
-      } catch {
+      } catch (err: unknown) {
+        setModalStep("error");
+        let message = "Failed to generate captions";
+        if (err instanceof Error) message = err.message;
+        setModalError(message);
       }
     };
     fetchCaptions();
@@ -59,9 +102,22 @@ const Home: NextPage = () => {
   };
 
   return (
+    <>
+    <Nav onHomeClick={() => {
+      setUploadedURL(null);
+      setCaptions([]);
+      setText("");
+    }} />
     <div className="min-h-screen w-full bg-gradient-to-br from-[#f8f9fa] via-[#fff0f6] to-[#f8e1e7] flex flex-col items-center justify-center font-sans">
+      <ProgressModal
+        open={modalOpen}
+        step={modalStep}
+        progress={modalProgress}
+        errorMessage={modalError}
+        onClose={() => setModalOpen(false)}
+      />
       {uploadedURL ? (
-        <div className="relative max-w-5xl w-full mx-auto mt-12 mb-24 px-4">
+        <div className="relative max-w-5xl mt-36 w-full mx-auto  mb-24 px-4">
           {/* Floating badge/icon */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
             <div className="bg-gradient-to-r from-[#a8324a] to-[#7b1f2b] text-white px-6 py-2 rounded-full shadow-lg text-lg font-bold tracking-wide flex items-center gap-2 border-4 border-white/80">
@@ -94,16 +150,22 @@ const Home: NextPage = () => {
                         }
                       }}
                     >
-                      {caption.text}
+                      {caption.text.startsWith(" ") ? caption.text : " " + caption.text.trimStart()}
                     </span>
                     <span
-                      contentEditable={false}
-                      className="absolute left-1/2 -top-6 -translate-x-1/2 text-[#a8324a] opacity-0 group-hover:opacity-100 transition text-base font-bold px-1 select-none cursor-pointer z-10"
-                      style={{ userSelect: 'none', pointerEvents: 'auto' }}
-                      onClick={ev => { ev.stopPropagation(); handleDeleteCaption(idx); }}
-                      tabIndex={-1}
-                      title="Delete caption"
-                    >×</span>
+  contentEditable={false}
+  className="absolute left-1/2 -top-6 -translate-x-1/2 text-[#a8324a] border border-gray-300 bg-white rounded-md opacity-0 group-hover:opacity-100 transition text-sm font-semibold px-2 py-1 select-none cursor-pointer z-10 shadow-sm hover:bg-[#fbe9eb] active:bg-[#f5cfd5]"
+  style={{ userSelect: 'none', pointerEvents: 'auto' }}
+  onClick={ev => {
+    ev.stopPropagation();
+    handleDeleteCaption(idx);
+  }}
+  tabIndex={-1}
+  title="Delete caption"
+>
+  ×
+</span>
+
                   </div>
                 ))}
               </div>
@@ -126,7 +188,14 @@ const Home: NextPage = () => {
               </div>
               {/* Render Controls */}
               <div className="w-full mt-2">
-                <div className="bg-white/90 rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col gap-4 items-center transition-all duration-300">
+              <div className="w-full mt-4">
+                    <RenderControls
+                      text={text}
+                      setText={setText}
+                      inputProps={inputProps}
+                    />
+              </div>
+                {/* <div className="bg-white/90 rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col gap-4 items-center transition-all duration-300">
                   <h3 className="text-lg font-bold text-[#a8324a] mb-1">Render Your Video</h3>
                   <p className="text-gray-500 mb-2 text-center text-sm">Add a title or description and render your video using our powerful AWS Lambda backend.</p>
                   <div className="w-full flex flex-col md:flex-row gap-3 items-center justify-center">
@@ -146,14 +215,8 @@ const Home: NextPage = () => {
                       Render video
                     </button>
                   </div>
-                  <div className="w-full mt-4">
-                    <RenderControls
-                      text={text}
-                      setText={setText}
-                      inputProps={inputProps}
-                    />
-                  </div>
-                </div>
+                  
+                </div> */}
               </div>
             </div>
           </div>
@@ -161,13 +224,28 @@ const Home: NextPage = () => {
       ) : (
       <>
         <Hero
-          onUploadComplete={setUploadedURL}
-          setShowModal={() => {}}
-          setStepIndex={() => {}}
+          onUploadComplete={url => {
+            setModalStep("uploading");
+            setModalOpen(true);
+            setModalError(undefined);
+            setUploadedURL(url);
+          }}
+          setShowModal={setModalOpen}
+          setStepIndex={stepIdx => {
+            if (stepIdx === 0) {
+              setModalStep("uploading");
+            } else if (stepIdx === 1) {
+              setModalStep("generating");
+            } else if (stepIdx === 2) {
+              setModalStep("rendering");
+            }
+          }}
         />
+        <Later />
         </>
       )}
     </div>
+    </>
   );
 };
 
