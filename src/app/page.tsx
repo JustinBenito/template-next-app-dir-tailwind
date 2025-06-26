@@ -12,13 +12,19 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH,
 } from "../../types/constants";
-import { Main } from "../remotion/MyComp/Main";
+
 import Hero from "../components/Hero";
 import { Caption } from "@remotion/captions";
-import { RenderControls } from "../components/RenderControls";
 import { ProgressModal } from "../components/ProgressModal";
 import Later from "../components/Demo";
 import Nav from "../components/Navbar";
+
+import { RenderControls } from "../components/RenderControls";
+import { Spacing } from "../components/Spacing";
+import { Tips } from "../components/Tips";
+import { Main } from "../remotion/MyComp/Main";// Adjust path based on where your uploader is located
+import HomePage from "../components/HomePage";
+
 
 const Home: NextPage = () => {
   const [uploadedURL, setUploadedURL] = useState<string | null>(null);
@@ -56,6 +62,14 @@ const Home: NextPage = () => {
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
   }, [modalOpen, modalStep]);
+
+  const handleGenerateReel = async (url: string) => {
+    console.log("Blog URL", url);
+    // const res = await fetch(`/api/get-reel?url=${url}`);
+    // const data = await res.json();
+    // console.log(data);
+    setUploadedURL(url);
+  };
 
   useEffect(() => {
     if (!uploadedURL) return;
