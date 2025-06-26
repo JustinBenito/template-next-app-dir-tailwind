@@ -12,6 +12,7 @@ import { fitText } from "@remotion/layout-utils";
 import { makeTransform, scale, translateY } from "@remotion/animation-utils";
 import { TikTokPage } from "@remotion/captions";
 
+
 const fontFamily = TheBoldFont;
 
 const container: React.CSSProperties = {
@@ -67,7 +68,7 @@ export const Page: React.FC<{
             ]),
           }}
         >
-          {page.tokens.map((t) => {
+          {page.tokens.map((t, idx) => {
             console.log("Token", t);
             console.log("Page", page);
             console.log("Time in ms", timeInMs);
@@ -84,14 +85,14 @@ export const Page: React.FC<{
 
             return (
               <span
-                key={t.fromMs}
+                key={`${startRelativeToSequence}-${idx}`}
                 style={{
                   display: "inline",
                   whiteSpace: "pre",
                   color: active ? HIGHLIGHT_COLOR : "white",
                 }}
               >
-                {t.text}
+                {t.text.startsWith(" ") ? t.text : " " + t.text.trimStart()}
               </span>
             );
           })}

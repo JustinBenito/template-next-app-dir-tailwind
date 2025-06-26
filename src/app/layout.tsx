@@ -1,16 +1,18 @@
 import "../../styles/global.css";
-import { Metadata, Viewport } from "next";
+import { Metadata, } from "next";
+import { ClerkProvider } from '@clerk/nextjs';
+
 
 export const metadata: Metadata = {
-  title: "Remotion and Next.js",
-  description: "Remotion and Next.js",
+  title: "Tanglish Captions",
+  description: "Get your captions in Tanglish",
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-};
+// export const viewport: Viewport = {
+//   width: "device-width",
+//   initialScale: 1,
+//   maximumScale: 1,
+// };
 
 export default function RootLayout({
   children,
@@ -18,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-background">{children}</body>
-    </html>
+<ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

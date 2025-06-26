@@ -1,9 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { CloudArrowUp } from "@phosphor-icons/react";
 
-export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url: string) => void }) {
+type FileDropProps = {
+  onUploadComplete: (url: string) => void;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setStepIndex: Dispatch<SetStateAction<number>>;
+};
+
+export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex }: FileDropProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileURL, setFileURL] = useState<string | null>(null);
@@ -67,8 +73,11 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
-
+    setShowModal(true);
+    setStepIndex(0); // Uploading
     try {
+      // Step 1: Uploading
+      setStepIndex(0);
       const res = await fetch("/api/upload-url", {
         method: "POST",
         headers: {
@@ -79,26 +88,22 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
           contentType: file.type,
         }),
       });
-
       if (!res.ok) throw new Error("Failed to get upload URL");
-
-      const { uploadUrl, fileUrl, captionUrl } = await res.json();
-      console.log(captionUrl)
-
+      const { uploadUrl, fileUrl } = await res.json();
+      // Step 2: Upload file
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": file.type },
         body: file,
       });
-
       if (!uploadRes.ok) throw new Error("Upload failed");
-
+      setStepIndex(0); // Still uploading
+      // Step 3: Simulate delay for fun
+      await new Promise((resolve) => setTimeout(resolve, 800));
       setUploadedURL(fileUrl);
-      onUploadComplete(fileUrl); // 👈 pass URL to parent
-      alert("Upload successful and Captions are Ready!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred during upload.");
+      onUploadComplete(fileUrl); // Parent will handle next steps
+    } catch {
+      setShowModal(false);
     } finally {
       setIsUploading(false);
     }
@@ -109,15 +114,15 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
       <div
         className={`relative w-full max-w-xl text-black rounded-lg border-2 border-dashed p-8 flex flex-col items-center justify-center transition-all
           backdrop-blur-md cursor-pointer
-          ${isDragging ? "border-green-400 bg-yellow-100/20" : "border-gray-300/30 bg-white/5"}`}
+          ${isDragging ? "border-red-400 bg-yellow-100/20" : "border-gray-300/30 bg-white/5"}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
       >
         <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="mb-4 rounded-full p-4">
-            <CloudArrowUp className="h-6 w-6 text-green-600" />
+          <div className="mb-2 rounded-full p-4">
+            <CloudArrowUp className="h-6 w-6 text-red-600" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-white/70">
             {file ? "File ready to submit" : "Upload your video"}
@@ -152,11 +157,11 @@ export default function FileDrop({ onUploadComplete }: { onUploadComplete: (url:
 
       {uploadedURL && (
         <div className="mt-6 w-full max-w-xl">
-          <p className="text-white">Uploaded Video URL:</p>
-          <a href={uploadedURL} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+          {/* <p className="text-white">Uploaded Video URL:</p> */}
+          {/* <a href={uploadedURL} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
             {uploadedURL}
-          </a>
-          <video controls className="mt-4 w-full">
+          </a> */}
+          <video controls className="mt-4 rounded-xl w-full">
             <source src={`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${uploadedURL}`} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
