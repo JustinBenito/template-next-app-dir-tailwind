@@ -83,7 +83,7 @@ console.log("before Gemini")
           Make this exactly into single tanglish words. I am going to display this as captions in video, so though the content is in tamil, I want to display a transliterated version of it which means I want it to be displayed in tanglish. So give me a tanglish text. Dont give me 1 full sentence in tanglish. I want each word to be broken down and converted to tanglish and should be displayed in the json format I have provided. Dont use english words unless the original speaker has spoken a english word in which case, you can display english. Basically transliterate it in a normal spoke tanglish way. Use this JSON format for response, dont deviate from this JSON format:  
           
           {
-    Make sure the milliseconds are accurate, I dont want to see any difference in the time in which the text was uttered and the time in which it is displayed.
+    Make sure the milliseconds are accurate I dont want to see any difference in the time in which the text was uttered and the time in which it is displayed.
     "text": " the word in tanglish with a space as a prefix",
     "startMs": the start time of the word in milliseconds,
     "endMs": the end time of the word in milliseconds,
