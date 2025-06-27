@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
+
 import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Nav({ onHomeClick }: { onHomeClick?: () => void }) {
-// Clerk handles user state
+
 
   return (
 <nav className="fixed z-50 w-full
@@ -37,16 +38,20 @@ export default function Nav({ onHomeClick }: { onHomeClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-4">
+
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
         <SignedOut>
           <SignInButton mode="modal">
+
             <button className="bg-red-800 border border-white/30 cursor-pointer text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition">
               Sign in
             </button>
+
           </SignInButton>
         </SignedOut>
+
       </div>
 
       </div>
