@@ -25,6 +25,7 @@ const Home: NextPage = () => {
   const [captions, setCaptions] = useState<Caption[]>([]);
   const editorRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState("");
+
   // Progress modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<"uploading" | "generating" | "rendering" | "done" | "error">("uploading");
@@ -37,6 +38,10 @@ const Home: NextPage = () => {
       captions,
     };
   }, [uploadedURL, captions]);
+
+  const memImages = [
+    "https://i.ibb.co/jYF2qNn/Screenshot-2025-06-28-at-12-35-45-PM.png"
+  ]
 
   // Animate progress bar for fun
   useEffect(() => {
@@ -114,6 +119,7 @@ const Home: NextPage = () => {
         step={modalStep}
         progress={modalProgress}
         errorMessage={modalError}
+        memeUrl={memImages[0]}
         onClose={() => setModalOpen(false)}
       />
       {uploadedURL ? (
