@@ -163,11 +163,37 @@ const s3Client = new S3Client({
 
 export async function POST(req: NextRequest) {
   try {
-    const { filename, contentType } = await req.json(); // Parse the JSON request body
+    // Log request details for debugging
+    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
+    console.log("Request method:", req.method);
+    
+    // Check if request body exists
+    const bodyText = await req.text();
+    console.log("Request body text:", bodyText);
+    
+    if (!bodyText) {
+      return new Response(
+        JSON.stringify({ error: "Request body is empty" }),
+        { status: 400 }
+      );
+    }
+    
+    let body;
+    try {
+      body = JSON.parse(bodyText);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400 }
+      );
+    }
+    
+    const { filename, contentType } = body;
 
     if (!filename || !contentType) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Missing required fields: filename or contentType" }),
         { status: 400 }
       );
     }
@@ -191,8 +217,9 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Error generating pre-signed URL:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: "Failed to generate upload URL" }),
+      JSON.stringify({ error: `Failed to generate upload URL: ${errorMessage}` }),
       { status: 500 }
     );
   }

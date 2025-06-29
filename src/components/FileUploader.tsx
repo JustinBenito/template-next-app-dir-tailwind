@@ -122,7 +122,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
       >
         <div className="relative z-10 flex flex-col items-center text-center">
           <div className="mb-2 rounded-full p-4">
-            <CloudArrowUp className="h-6 w-6 text-red-600" />
+            <CloudArrowUp className="h-6 w-6 text-amber-300" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-white/70">
             {file ? "File ready to submit" : "Upload your video"}

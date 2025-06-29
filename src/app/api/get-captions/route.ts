@@ -8,6 +8,31 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// --- SRT GENERATION HELPERS (moved outside handler) ---
+type Caption = {
+  text: string;
+  startMs: number;
+  endMs: number;
+  timestampMs?: number;
+  confidence?: number;
+};
+
+function msToSrtTime(ms: number): string {
+  const date = new Date(ms);
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+  const milliseconds = String(ms % 1000).padStart(3, '0');
+  return `${hours}:${minutes}:${seconds},${milliseconds}`;
+}
+
+function captionsToSrt(captions: Caption[]): string {
+  return captions.map((caption, i) => {
+    return `${i + 1}\n${msToSrtTime(caption.startMs)} --> ${msToSrtTime(caption.endMs)}\n${caption.text.trim()}\n`;
+  }).join('\n');
+}
+// --- END SRT HELPERS ---
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -139,6 +164,15 @@ console.log("before Gemini")
 
     const parsedJson = JSON.parse(jsonMatch[1]);
     console.log(parsedJson)
+
+    // --- SRT GENERATION ---
+    if (jsonFileName) {
+      const srtContent = captionsToSrt(parsedJson);
+      const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+      const srtFilePath = path.join('./downloads', srtFileName);
+      await fs.writeFile(srtFilePath, srtContent);
+    }
+    // --- END SRT GENERATION ---
 
     console.log(jsonFileName)
 

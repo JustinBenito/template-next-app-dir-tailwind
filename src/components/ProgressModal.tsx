@@ -69,6 +69,8 @@ export const ProgressModal: React.FC<{
           <Image
             src={memeUrl}
             alt="Loading Meme"
+            width={1000}
+            height={2000}
             className="w-full max-w-[300px] rounded-lg mb-4 object-cover"
           />
         )}

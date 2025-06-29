@@ -30,13 +30,26 @@ export const RenderControls: React.FC<{
           ></Input>
           <Spacing></Spacing>
           <AlignEnd>
-            <Button
-              disabled={state.status === "invoking"}
-              loading={state.status === "invoking"}
-              onClick={renderMedia}
-            >
-              Render video
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                disabled={state.status === "invoking"}
+                loading={state.status === "invoking"}
+                onClick={renderMedia}
+              >
+                Render video
+              </Button>
+              {/* Download SRT Button */}
+              {inputProps.src && (
+                <a
+                  href={`/downloads/${getSrtFileNameFromUrl(inputProps.src)}`}
+                  download
+                >
+                  <Button secondary disabled={state.status === "invoking"}>
+                    Download .srt
+                  </Button>
+                </a>
+              )}
+            </div>
           </AlignEnd>
           {state.status === "error" ? (
             <ErrorComp message={state.error.message}></ErrorComp>
@@ -57,3 +70,10 @@ export const RenderControls: React.FC<{
     </InputContainer>
   );
 };
+
+// Helper to get SRT file name from video URL
+function getSrtFileNameFromUrl(url: string): string {
+  // Extract the file name from the URL and replace extension with .srt
+  const fileName = url.split('/').pop() || '';
+  return fileName.replace(/\.[^.]+$/, '.srt');
+}
