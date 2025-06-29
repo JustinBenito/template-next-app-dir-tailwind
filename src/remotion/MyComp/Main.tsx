@@ -15,6 +15,7 @@ import { getVideoMetadata } from "@remotion/media-utils";
 import { loadFont } from "./load-font";
 import { Caption, createTikTokStyleCaptions } from "@remotion/captions";
 import {prefetch} from 'remotion';
+import { SubtitleStyleConfig } from "../../components/SubtitleStyleSelector";
 // import type {PrefetchOnProgress} from 'remotion';
 
 export type SubtitleProp = {
@@ -42,8 +43,19 @@ const SWITCH_CAPTIONS_EVERY_MS = 200;
 
 export const Main:React.FC<{
   src: string;
-  captions?: any[];
-}> = ({ src, captions }) => {
+  captions?: {
+    text: string;
+    startMs: number;
+    endMs: number;
+    timestampMs?: number | null;
+    confidence?: number;
+  }[];
+  subtitleStyle?: "tiktok" | "minimal" | "neon" | "retro" | "elegant" | 
+    "aestheticGlow" | "boldPop" | "cyberWave" | "pastelSoft" | 
+    "glassGlow" | "cinematic" | "dangerZone" | "vaporwave" | 
+    "skyBlue" | "funkyGraffiti" | "luxeGold" | "ghostWhite";
+  subtitleStyleConfig?: SubtitleStyleConfig;
+}> = ({ src, captions, subtitleStyle = "tiktok", subtitleStyleConfig }) => {
   const [subtitles, setSubtitles] = useState<Caption[] | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [handle] = useState(() => delayRender());
@@ -55,7 +67,7 @@ export const Main:React.FC<{
       try {
         await loadFont();
         if (captions && captions.length > 0) {
-          setSubtitles(captions);
+          setSubtitles(captions as Caption[]);
           setIsReady(true);
           continueRender(handle);
           return;
@@ -131,7 +143,7 @@ const subtitleEndFrame = Math.max(
             from={subtitleStartFrame}
             durationInFrames={durationInFrames}
           >
-            <SubtitlePage page={page} />
+            <SubtitlePage page={page} style={subtitleStyle} styleConfig={subtitleStyleConfig} />
           </Sequence>
         );
       })}

@@ -33,16 +33,35 @@ export const DownloadButton: React.FC<{
         <UndoIcon></UndoIcon>
       </Button>
       <Spacing></Spacing>
-      <a href={state.url}>
+      <a href={state.url} download>
         <Button>
           Download video
           <Spacing></Spacing>
           <Megabytes sizeInBytes={state.size}></Megabytes>
         </Button>
       </a>
+      <Spacing></Spacing>
+      {/* Download SRT Button */}
+      {state.url && (
+        <a
+          href={`/downloads/${getSrtFileNameFromUrl(state.url)}`}
+          download
+        >
+          <Button secondary>
+            Download .srt
+          </Button>
+        </a>
+      )}
     </div>
   );
 };
+
+// Helper to get SRT file name from video URL
+function getSrtFileNameFromUrl(url: string): string {
+  // Extract the file name from the URL and replace extension with .srt
+  const fileName = url.split('/').pop() || '';
+  return fileName.replace(/\.[^.]+$/, '.srt');
+}
 
 const UndoIcon: React.FC = () => {
   return (

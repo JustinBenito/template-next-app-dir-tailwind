@@ -1,22 +1,18 @@
 import React, { useMemo } from "react";
 
 export const ProgressBar: React.FC<{
-  progress: number;
+  progress: number; // value between 0 to 1
 }> = ({ progress }) => {
-  const fill: React.CSSProperties = useMemo(() => {
-    return {
-      width: `${progress * 100}%`,
-    };
-  }, [progress]);
+  const fill = useMemo(() => ({
+    width: `${Math.min(100, Math.max(0, progress * 100))}%`,
+  }), [progress]);
 
   return (
-    <div>
-      <div className="w-full h-2.5 rounded-md appearance-none bg-unfocused-border-color mt-2.5 mb-6">
-        <div
-          className="bg-foreground h-2.5 rounded-md transition-all ease-in-out duration-100"
-          style={fill}
-        ></div>
-      </div>
+    <div className="w-full bg-gray-200 rounded-full h-3">
+      <div
+        className="h-3 rounded-full transition-all duration-500 ease-in-out bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+        style={fill}
+      ></div>
     </div>
   );
 };
