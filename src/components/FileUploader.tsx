@@ -17,7 +17,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
   const [uploadedURL, setUploadedURL] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 50MB
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();

@@ -39,7 +39,7 @@ export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
   };
 };
 
-const SWITCH_CAPTIONS_EVERY_MS = 200;
+const SWITCH_CAPTIONS_EVERY_MS = 800;
 
 export const Main:React.FC<{
   src: string;
@@ -64,32 +64,60 @@ export const Main:React.FC<{
 
   useEffect(() => {
     const prepareResources = async () => {
+      const timeout = setTimeout(() => {
+        console.error("Timeout: prepareResources took too long.");
+        continueRender(handle); // failsafe to avoid permanent hang
+      }, 15000); // fallback after 15s
+  
       try {
         await loadFont();
+  
         if (captions && captions.length > 0) {
           setSubtitles(captions as Caption[]);
           setIsReady(true);
           continueRender(handle);
+          clearTimeout(timeout);
           return;
         }
-        // Fallback: fetch from server
-        const {waitUntilDone} = prefetch(`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src}`, {
-          method: 'blob-url',
-        });
-        const [subtitleResponse] = await Promise.all([
-          fetch(`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src.replace(".mp4",".json")}`),
-          waitUntilDone()
+  
+        const { waitUntilDone } = prefetch(
+          `https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src}`,
+          { method: "blob-url" }
+        );
+  
+        const result = await Promise.race([
+          Promise.all([
+            fetch(
+              `https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${src.replace(
+                ".mp4",
+                ".json"
+              )}`
+            ),
+            waitUntilDone(),
+          ]),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Promise race timeout")), 10000)
+          ),
         ]);
+        
+        const [subtitleResponse] = result as [Response, void]; // ✅ Type assertion
+        
+  
         const data = await subtitleResponse.json();
         setSubtitles(data);
         setIsReady(true);
         continueRender(handle);
       } catch (e) {
         console.error("Error during preparation", e);
+        continueRender(handle); // prevent render hang even if there's an error
+      } finally {
+        clearTimeout(timeout);
       }
     };
+  
     prepareResources();
   }, [src, captions, handle]);
+  
 
   const { pages } = useMemo(() => {
     if (!subtitles) return { pages: [] };

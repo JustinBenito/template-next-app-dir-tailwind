@@ -214,7 +214,7 @@ const Home: NextPage = () => {
         <div className="relative max-w-8xl mt-36 w-full mx-auto mb-24 px-4">
           {/* Floating badge/icon */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
-            <div className="bg-gradient-to-r from-[#a8324a] to-[#7b1f2b] text-white px-6 py-2 rounded-full shadow-lg text-sm  md:text-lg font-bold tracking-wide flex items-center gap-2 border-4 border-white/80">
+            <div className="bg-gradient-to-r from-[#a8324a] to-[#7b1f2b] text-white px-6 py-2 rounded-full shadow-lg text-sm  md:text-lg font-bold tracking-wide flex items-center gap-2 border-2 border-white/80">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
               Tanglish Reel Studio
             </div>
@@ -225,7 +225,7 @@ const Home: NextPage = () => {
               <h2 className="text-2xl font-extrabold text-[#a8324a] dark:text-[#F5F1E8] mb-2 tracking-tight">Edit Captions</h2>
               <div
                 ref={editorRef}
-                className="notion-like-editor w-full min-h-[120px] bg-white/70 dark:bg-[#232326]/70 rounded-xl px-4 py-3 text-lg text-[#222] dark:text-[#F5F1E8] focus-within:ring-2 focus-within:ring-[#a8324a] dark:focus-within:ring-[#8B4A47] transition shadow border border-gray-200 dark:border-[#333]"
+                className="notion-like-editor w-full min-h-[120px] bg-white/90  rounded-xl px-4 py-3 text-lg text-[#222] focus-within:ring-2 focus-within:ring-[#a8324a] dark:focus-within:ring-[#8B4A47] transition shadow  border-gray-300 border-2"
                 style={{ outline: 'none', cursor: 'text', fontFamily: 'inherit', lineHeight: 1.7 }}
                 tabIndex={0}
               >
