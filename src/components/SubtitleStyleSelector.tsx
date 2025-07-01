@@ -11,18 +11,18 @@ const ColorPicker: React.FC<{
       <label className="block text-sm font-medium text-gray-700 mb-2">
         {label}
       </label>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center text-black gap-2">
         <input
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+          className="w-10 h-10 text-black rounded-lg border border-gray-300 cursor-pointer"
         />
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a8324a] focus:border-transparent text-sm"
+          className="flex-1 px-3 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a8324a] focus:border-transparent text-sm"
           placeholder="#000000"
         />
       </div>
@@ -332,7 +332,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
                 max="300"
                 value={mergedStyle.fontSize}
                 onChange={(e) => onCustomStyleChange({ ...customStyle, fontSize: parseInt(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
               />
               <div className="text-xs text-gray-500 mt-1">{mergedStyle.fontSize}px</div>
             </div>
@@ -343,7 +343,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
               <select
                 value={mergedStyle.textTransform}
                 onChange={(e) => onCustomStyleChange({ ...customStyle, textTransform: e.target.value as "none" | "uppercase" | "lowercase" | "capitalize" })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a8324a] focus:border-transparent"
+                className="w-full px-3 text-gray-800 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a8324a] focus:border-transparent"
               >
                 <option value="none">None</option>
                 <option value="uppercase">Uppercase</option>
@@ -364,7 +364,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
                 max="20"
                 value={parseInt(mergedStyle.strokeWidth)}
                 onChange={(e) => onCustomStyleChange({ ...customStyle, strokeWidth: `${e.target.value}px` })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
               />
               <div className="text-xs text-gray-500 mt-1">{mergedStyle.strokeWidth}</div>
             </div>
@@ -377,8 +377,8 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
               </label>
               <input
                 type="range"
-                min="-500"
-                max="500"
+                min="-1000"
+                max="1000"
                 value={mergedStyle.container.left}
                 onChange={(e) => {
                   const left = parseInt(e.target.value);
@@ -392,7 +392,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
                     },
                   });
                 }}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
               />
               <div className="text-xs text-gray-500 mt-1">{mergedStyle.container.left}px</div>
             </div>
@@ -402,8 +402,8 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
               </label>
               <input
                 type="range"
-                min="-500"
-                max="500"
+                min="-1000"
+                max="2000"
                 value={mergedStyle.container.top}
                 onChange={(e) => {
                   const top = parseInt(e.target.value);
@@ -417,7 +417,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
                     },
                   });
                 }}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
               />
               <div className="text-xs text-gray-500 mt-1">{mergedStyle.container.top}px</div>
             </div>
