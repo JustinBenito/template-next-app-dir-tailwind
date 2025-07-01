@@ -169,7 +169,7 @@ console.log("before Gemini")
     if (jsonFileName) {
       const srtContent = captionsToSrt(parsedJson);
       const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
-      const srtFilePath = path.join('./downloads', srtFileName);
+      const srtFilePath = path.join('./public/downloads', srtFileName);
       await fs.writeFile(srtFilePath, srtContent);
     }
     // --- END SRT GENERATION ---
