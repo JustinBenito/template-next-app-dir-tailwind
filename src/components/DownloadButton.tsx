@@ -44,7 +44,7 @@ export const DownloadButton: React.FC<{
       {/* Download SRT Button */}
       {state.url && (
         <a
-          href={`public/downloads/${getSrtFileNameFromUrl(state.url)}`}
+          href={`downloads/${getSrtFileNameFromUrl(state.url)}`}
           download
         >
           <Button secondary>
