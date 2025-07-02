@@ -33,7 +33,7 @@ const ColorPicker: React.FC<{
 // Preset style configurations
 export const PRESET_STYLES = {
   tiktok: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 220,
     highlightColor: "#39E508",
     strokeWidth: "20px",
@@ -41,7 +41,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   minimal: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 180,
     highlightColor: "#ffffff",
     strokeWidth: "0px",
@@ -49,7 +49,7 @@ export const PRESET_STYLES = {
     textTransform: "none" as const,
   },
   neon: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#00ffff",
     strokeWidth: "8px",
@@ -57,7 +57,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   retro: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 190,
     highlightColor: "#ff6b35",
     strokeWidth: "12px",
@@ -65,7 +65,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   elegant: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 170,
     highlightColor: "#f8f9fa",
     strokeWidth: "3px",
@@ -73,7 +73,7 @@ export const PRESET_STYLES = {
     textTransform: "none" as const,
   },
   aestheticGlow: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#ffffff",
     strokeWidth: "6px",
@@ -81,7 +81,7 @@ export const PRESET_STYLES = {
     textTransform: "capitalize" as const,
   },
   boldPop: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 220,
     highlightColor: "#ffdd00",
     strokeWidth: "14px",
@@ -89,7 +89,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   cyberWave: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 210,
     highlightColor: "#00f0ff",
     strokeWidth: "10px",
@@ -97,7 +97,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   pastelSoft: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 180,
     highlightColor: "#fde2e4",
     strokeWidth: "4px",
@@ -105,7 +105,7 @@ export const PRESET_STYLES = {
     textTransform: "capitalize" as const,
   },
   glassGlow: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#e0f7fa",
     strokeWidth: "6px",
@@ -113,7 +113,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   cinematic: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#ffffff",
     strokeWidth: "10px",
@@ -121,7 +121,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   dangerZone: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 220,
     highlightColor: "#ff1744",
     strokeWidth: "10px",
@@ -129,7 +129,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   vaporwave: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#ff77ff",
     strokeWidth: "6px",
@@ -137,7 +137,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   skyBlue: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 190,
     highlightColor: "#bbf0ff",
     strokeWidth: "5px",
@@ -145,7 +145,7 @@ export const PRESET_STYLES = {
     textTransform: "capitalize" as const,
   },
   funkyGraffiti: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 210,
     highlightColor: "#fffd00",
     strokeWidth: "12px",
@@ -153,7 +153,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   luxeGold: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 200,
     highlightColor: "#ffd700",
     strokeWidth: "6px",
@@ -161,7 +161,7 @@ export const PRESET_STYLES = {
     textTransform: "uppercase" as const,
   },
   ghostWhite: {
-    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0 },
+    container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
     fontSize: 180,
     highlightColor: "#f8f8ff",
     strokeWidth: "4px",
@@ -178,6 +178,9 @@ export interface SubtitleStyleConfig {
     alignItems: string;
     left?: number;
     top?: number;
+    right?: number;
+    bottom?: number;
+    height?: number;
   };
   fontSize: number;
   highlightColor: string;
@@ -241,6 +244,9 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
       alignItems: customStyle.container?.alignItems ?? preset.container.alignItems ?? 'center',
       left: customStyle.container?.left ?? preset.container.left ?? 0,
       top: customStyle.container?.top ?? preset.container.top ?? 0,
+      right: customStyle.container?.right ?? preset.container.right ?? 0,
+      bottom: customStyle.container?.bottom ?? preset.container.bottom ?? 0,
+      height: customStyle.container?.height ?? preset.container.height ?? 0,
     },
     fontSize: customStyle.fontSize ?? preset.fontSize,
     highlightColor: customStyle.highlightColor ?? preset.highlightColor,

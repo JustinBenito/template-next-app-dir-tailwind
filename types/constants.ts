@@ -16,6 +16,7 @@ export const CompositionProps = z.object({
     "glassGlow", "cinematic", "dangerZone", "vaporwave", 
     "skyBlue", "funkyGraffiti", "luxeGold", "ghostWhite"
   ]).optional(),
+  subtitleStyleConfig: z.any().optional(),
 });
 
 export const defaultMyCompProps: z.infer<typeof CompositionProps> = {
