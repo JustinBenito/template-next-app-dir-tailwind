@@ -215,7 +215,7 @@ const Home: NextPage = () => {
           {/* Floating badge/icon */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
             <div className="bg-gradient-to-r from-[#a8324a] to-[#7b1f2b] text-white px-6 py-2 rounded-full shadow-lg text-sm  md:text-lg font-bold tracking-wide flex items-center gap-2 border-2 border-white/80">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
+              
               Tanglish Reel Studio
             </div>
           </div>

@@ -154,12 +154,12 @@ export const Main:React.FC<{
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
         const subtitleStartFrame = Math.floor(((page.startMs) / 1000) * fps);
-const subtitleEndFrame = Math.max(
-  nextPage ? Math.floor((nextPage.startMs / 1000) * fps) : Infinity,
-  Math.max(
-    subtitleStartFrame + Math.floor((SWITCH_CAPTIONS_EVERY_MS / 1000) * fps)
-  )
-);
+        const subtitleEndFrame = Math.max(
+          nextPage ? Math.floor((nextPage.startMs / 1000) * fps) : Infinity,
+          Math.max(
+            subtitleStartFrame + Math.floor((SWITCH_CAPTIONS_EVERY_MS / 1000) * fps)
+          )
+        );
 
         const durationInFrames = subtitleEndFrame - subtitleStartFrame;
         

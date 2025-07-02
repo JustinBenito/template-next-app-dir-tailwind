@@ -18,7 +18,7 @@ const fontFamily = TheBoldFont;
 // Style configurations
 const STYLES = {
   tiktok: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 220,
     highlightColor: "#39E508",
     strokeWidth: "20px",
@@ -26,7 +26,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   minimal: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 400, height: 120, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 400, height: 120, left: undefined, top: undefined, right: undefined },
     fontSize: 180,
     highlightColor: "#ffffff",
     strokeWidth: "0px",
@@ -34,7 +34,7 @@ const STYLES = {
     textTransform: "none" as const,
   },
   neon: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 200,
     highlightColor: "#00ffff",
     strokeWidth: "8px",
@@ -42,7 +42,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   retro: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 190,
     highlightColor: "#ff6b35",
     strokeWidth: "12px",
@@ -50,7 +50,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   elegant: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 380, height: 140, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 380, height: 140, left: undefined, top: undefined, right: undefined },
     fontSize: 170,
     highlightColor: "#f8f9fa",
     strokeWidth: "3px",
@@ -59,7 +59,7 @@ const STYLES = {
   },
 
   aestheticGlow: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: 100, right: undefined },
     fontSize: 200,
     highlightColor: "#ffffff",
     strokeWidth: "6px",
@@ -67,7 +67,7 @@ const STYLES = {
     textTransform: "capitalize" as const,
   },
   boldPop: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 360, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 360, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 220,
     highlightColor: "#ffdd00",
     strokeWidth: "14px",
@@ -75,7 +75,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   cyberWave: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 330, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 330, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 210,
     highlightColor: "#00f0ff",
     strokeWidth: "10px",
@@ -83,7 +83,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   pastelSoft: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 370, height: 140, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 370, height: 140, left: undefined, top: undefined, right: undefined },
     fontSize: 180,
     highlightColor: "#fde2e4",
     strokeWidth: "4px",
@@ -91,7 +91,7 @@ const STYLES = {
     textTransform: "capitalize" as const,
   },
   glassGlow: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 200,
     highlightColor: "#e0f7fa",
     strokeWidth: "6px",
@@ -99,7 +99,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   cinematic: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 320, height: 160, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 320, height: 160, left: undefined, top: undefined, right: undefined },
     fontSize: 200,
     highlightColor: "#ffffff",
     strokeWidth: "10px",
@@ -107,7 +107,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   dangerZone: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 350, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 220,
     highlightColor: "#ff1744",
     strokeWidth: "10px",
@@ -115,7 +115,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   vaporwave: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 200,
     highlightColor: "#ff77ff",
     strokeWidth: "6px",
@@ -123,7 +123,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   skyBlue: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 360, height: 140, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 360, height: 140, left: undefined, top: undefined, right: undefined },
     fontSize: 190,
     highlightColor: "#bbf0ff",
     strokeWidth: "5px",
@@ -131,7 +131,7 @@ const STYLES = {
     textTransform: "capitalize" as const,
   },
   funkyGraffiti: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 340, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 210,
     highlightColor: "#fffd00",
     strokeWidth: "12px",
@@ -139,7 +139,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   luxeGold: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 330, height: 150, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 330, height: 150, left: undefined, top: undefined, right: undefined },
     fontSize: 200,
     highlightColor: "#ffd700",
     strokeWidth: "6px",
@@ -147,7 +147,7 @@ const STYLES = {
     textTransform: "uppercase" as const,
   },
   ghostWhite: {
-    container: { justifyContent: "center", alignItems: "center", bottom: 370, height: 140, left: undefined, top: undefined },
+    container: { justifyContent: "center", alignItems: "center", bottom: 370, height: 140, left: undefined, top: undefined, right: undefined },
     fontSize: 180,
     highlightColor: "#f8f8ff",
     strokeWidth: "4px",
@@ -171,6 +171,12 @@ export const Page: React.FC<{
 
   const currentStyle = styleConfig || STYLES[style];
 
+  // Debug log for received styleConfig
+  React.useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('Received styleConfig:', styleConfig);
+  }, [styleConfig]);
+
   const fittedText = fitText({
     fontFamily,
     text: page.text,
@@ -180,9 +186,35 @@ export const Page: React.FC<{
 
   const fontSize = Math.min(currentStyle.fontSize, fittedText.fontSize);
 
+  // Build positioning styles only if defined
+  const positioningStyles: React.CSSProperties = {};
+  if (currentStyle.container?.top !== undefined) {
+    positioningStyles.top = currentStyle.container.top;
+  }
+  if (currentStyle.container?.left !== undefined) {
+    positioningStyles.left = currentStyle.container.left;
+  }
+  if (currentStyle.container?.right !== undefined) {
+    positioningStyles.right = currentStyle.container.right;
+  }
+  if (currentStyle.container?.bottom !== undefined) {
+    positioningStyles.bottom = currentStyle.container.bottom;
+  }
+  if (currentStyle.container?.height !== undefined) {
+    positioningStyles.height = currentStyle.container.height;
+  }
+
   return (
-    <AbsoluteFill>
-      <div
+    <AbsoluteFill
+      style={{
+        display: 'flex',
+        justifyContent: currentStyle.container.justifyContent ?? 'center',
+        alignItems: currentStyle.container.alignItems ?? 'center',
+        width: '100%',
+        ...positioningStyles, // Only applies if values are defined
+      }}
+    >
+      <span
         style={{
           fontSize,
           color: "white",
@@ -194,46 +226,31 @@ export const Page: React.FC<{
           ]),
           fontFamily,
           textTransform: currentStyle.textTransform,
-          position: 'absolute',
-          left: currentStyle.container.left ?? 0,
-          top: currentStyle.container.top ?? 0,
-          justifyContent: currentStyle.container.justifyContent,
-          alignItems: currentStyle.container.alignItems,
-          display: 'flex',
-          width: '100%',
+          display: 'inline-block',
         }}
       >
-        <span
-          style={{
-            transform: makeTransform([
-              scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
-              translateY(interpolate(enterProgress, [0, 1], [50, 0])),
-            ]),
-          }}
-        >
-          {page.tokens.map((t, idx) => {
-            const startRelativeToSequence = t.fromMs - page.startMs;
-            const endRelativeToSequence = t.toMs - page.startMs;
+        {page.tokens.map((t, idx) => {
+          const startRelativeToSequence = t.fromMs - page.startMs;
+          const endRelativeToSequence = t.toMs - page.startMs;
 
-            const active =
-              startRelativeToSequence <= timeInMs &&
-              endRelativeToSequence > timeInMs;
+          const active =
+            startRelativeToSequence <= timeInMs &&
+            endRelativeToSequence > timeInMs;
 
-            return (
-              <span
-                key={`${startRelativeToSequence}-${idx}`}
-                style={{
-                  display: "inline",
-                  whiteSpace: "pre",
-                  color: active ? currentStyle.highlightColor : "white",
-                }}
-              >
-                {t.text.startsWith(" ") ? t.text : " " + t.text.trimStart()}
-              </span>
-            );
-          })}
-        </span>
-      </div>
+          return (
+            <span
+              key={`${startRelativeToSequence}-${idx}`}
+              style={{
+                display: "inline",
+                whiteSpace: "pre",
+                color: active ? currentStyle.highlightColor : "white",
+              }}
+            >
+              {t.text.startsWith(" ") ? t.text : " " + t.text.trimStart()}
+            </span>
+          );
+        })}
+      </span>
     </AbsoluteFill>
   );
 };
