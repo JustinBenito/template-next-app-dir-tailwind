@@ -5,6 +5,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { exec } from 'child_process';
+import util from 'util';
+const execPromise = util.promisify(exec);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -48,65 +51,115 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log("Yaa so this is where all hell breaks loose")
     // Step 1: Download the video to local folder
-    const videoResponse = await fetch(videoUrl);
-    console.log("This came ?")
-    if (!videoResponse.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to download video' }), {
+    let videoResponse;
+    try {
+      videoResponse = await fetch(videoUrl);
+      if (!videoResponse.ok) {
+        throw new Error(`Failed to download video: status ${videoResponse.status}`);
+      }
+    } catch (err) {
+      console.error('Error downloading video:', err);
+      return new Response(JSON.stringify({ error: 'Failed to download video', details: err instanceof Error ? err.message : String(err) }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const videoBuffer = await videoResponse.arrayBuffer();
-    const buffer = Buffer.from(videoBuffer); // 🔧 Fix here
+    let buffer;
+    let fileName;
+    let filePath;
+    try {
+      const videoBuffer = await videoResponse.arrayBuffer();
+      buffer = Buffer.from(videoBuffer);
+      fileName = `${randomUUID()}.mp4`;
+      const downloadsDir = path.join(process.cwd(), 'downloads');
+      await fs.mkdir(downloadsDir, { recursive: true });
+      filePath = path.join('./downloads', fileName);
+      await fs.writeFile(filePath, new Uint8Array(buffer));
+    } catch (err) {
+      console.error('Error saving video file:', err);
+      return new Response(JSON.stringify({ error: 'Failed to save video file', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-    const fileName = `${randomUUID()}.mp4`;
-
-    const downloadsDir = path.join(process.cwd(), 'downloads');
-    await fs.mkdir(downloadsDir, { recursive: true });
-
-    const filePath = path.join('./downloads', fileName);
-    
-    await fs.writeFile(filePath, new Uint8Array(buffer));
+    // Step 1.5: If file is video, extract audio
+    let processFilePath = filePath;
+    let processMimeType = videoResponse.headers.get('content-type') || 'video/mp4';
+    try {
+      if (processMimeType.startsWith('video/')) {
+        // Extract audio using ffmpeg
+        const audioFileName = fileName.replace(/\.mp4$/, '.wav');
+        const audioFilePath = path.join('./downloads', audioFileName);
+        const ffmpegCmd = `ffmpeg -y -i "${filePath}" -vn -acodec pcm_s16le -ar 44100 -ac 2 "${audioFilePath}"`;
+        console.log('Extracting audio with ffmpeg:', ffmpegCmd);
+        await execPromise(ffmpegCmd);
+        processFilePath = audioFilePath;
+        processMimeType = 'audio/wav';
+      }
+    } catch (err) {
+      console.error('Error extracting audio from video:', err);
+      return new Response(JSON.stringify({ error: 'Failed to extract audio from video', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     // Step 2: Read the local file and upload to Gemini
-    // const localVideoBuffer = await fs.readFile(filePath);
-    console.log("Uploading takes time")
-    const uploadedFile = await ai.files.upload({
-      file: filePath,
-      config: {
-        mimeType: 'video/mp4',
-      },
-    });
-
-    if (!uploadedFile.name) {
-      throw new Error('File name is undefined');
+    let uploadedFile;
+    let mimeType;
+    try {
+      mimeType = processMimeType;
+      uploadedFile = await ai.files.upload({
+        file: processFilePath,
+        config: { mimeType },
+      });
+      if (!uploadedFile.name) {
+        throw new Error('File name is undefined');
+      }
+    } catch (err) {
+      console.error('Error uploading file to Gemini:', err);
+      return new Response(JSON.stringify({ error: 'Failed to upload file to Gemini', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Step 3: Wait until the file is processed
     let fileState = uploadedFile.state;
-    while (fileState !== 'ACTIVE') {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      const updatedFile = await ai.files.get({ name: uploadedFile.name });
-      fileState = updatedFile.state;
+    let fileUri = uploadedFile.uri;
+    let maxTries = 12;
+    try {
+      while (fileState !== 'ACTIVE' && maxTries > 0) {
+        console.log(`Waiting for file to become ACTIVE. Current state: ${fileState}`);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const updatedFile = await ai.files.get({ name: uploadedFile.name });
+        fileState = updatedFile.state;
+        fileUri = updatedFile.uri;
+        maxTries--;
+      }
+      if (fileState !== 'ACTIVE') {
+        throw new Error('File did not become ACTIVE in Gemini API');
+      }
+    } catch (err) {
+      console.error('Error waiting for Gemini file to become ACTIVE:', err);
+      return new Response(JSON.stringify({ error: 'Gemini file did not become ACTIVE', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-console.log("before Gemini")
+
     // Step 4: Generate content
-    const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: createUserContent([
-        {
-          fileData: {
-            fileUri: uploadedFile.uri,
-            mimeType: 'video/mp4',
-          },
-        },
-        {
-          text: `
+    let output;
+    try {
+      const result = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: createUserContent([
+          { fileData: { fileUri, mimeType } },
+          { text: `
           Make this exactly into single tanglish words. I am going to display this as captions in video, so though the content is in tamil, I want to display a transliterated version of it which means I want it to be displayed in tanglish. So give me a tanglish text. Dont give me 1 full sentence in tanglish. I want each word to be broken down and converted to tanglish and should be displayed in the json format I have provided. Dont use english words unless the original speaker has spoken a english word in which case, you can display english. Basically transliterate it in a normal spoke tanglish way. Use this JSON format for response, dont deviate from this JSON format:  
-          
           {
     Make sure the milliseconds are accurate I dont want to see any difference in the time in which the text was uttered and the time in which it is displayed.
     "text": " the word in tanglish with a space as a prefix",
@@ -117,9 +170,8 @@ console.log("before Gemini")
         }
     Very important: there should be a space as a prefix to each text word. Very Important 
 
-
     here is an example
-    
+    [
     { "text": "hey", "startMs": 330, "endMs": 400, "timestampMs": 420, "confidence": 1.0 },
     { "text": " guys.", "startMs": 500, "endMs": 700, "timestampMs": 500, "confidence": 1.0 },
     { "text": " na", "startMs": 1040, "endMs": 1170, "timestampMs": 1040, "confidence": 0.963153600692749 },
@@ -137,67 +189,95 @@ console.log("before Gemini")
     { "text": " irukkanga.", "startMs": 4940, "endMs": 5430, "timestampMs": 4940, "confidence": 0.9782485961914062 },
     { "text": " first", "startMs": 5880, "endMs": 6230, "timestampMs": 5880, "confidence": 0.9451284408569336 },
     { "text": " year", "startMs": 6230, "endMs": 6450, "timestampMs": 6230, "confidence": 0.9851028919219971 },
-    { "text": " anniversary", "startMs": 6450, "endMs": 7270, "timestampMs": 6450, "confidence": 0.9850393533706665 },
+    { "text": " anniversary", "startMs": 6450, "endMs": 7270, "timestampMs": 6450, "confidence": 0.9850393533706665 }
+    ]
 
     the above is just an example, dont use it anywhere else in response.
-    `,
+
+    Important: Make sure the JSON generated has [] to actually parse the JSON data.
+    ` },
+        ]),
+      });
+      output = result.text?.trim();
+      console.log("da Output", output)
+      if (!output) {
+        throw new Error('No response from model');
+      }
+    } catch (err) {
+      console.error('Error generating content with Gemini:', err);
+      return new Response(JSON.stringify({ error: 'Failed to generate content with Gemini', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Step 5: Extract JSON from the model's response
+    let parsedJson;
+    try {
+      const jsonMatch = output.match(/```json\s*([\s\S]*?)\s*```/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in the model response');
+      }
+      parsedJson = JSON.parse(jsonMatch[1]);
+      console.log(parsedJson);
+    } catch (err) {
+      console.error('Error parsing JSON from model response:', err);
+      return new Response(JSON.stringify({ error: 'Failed to parse JSON from model response', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Step 6: SRT GENERATION
+    try {
+      if (jsonFileName) {
+        const srtContent = captionsToSrt(parsedJson);
+        const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+        const srtFilePath = path.join('./public/downloads', srtFileName);
+        await fs.writeFile(srtFilePath, srtContent);
+      }
+    } catch (err) {
+      console.error('Error generating SRT file:', err);
+      return new Response(JSON.stringify({ error: 'Failed to generate SRT file', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Step 7: Upload JSON to S3
+    try {
+      const s3 = new S3Client({
+        region: 'auto',
+        endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
         },
-      ]),
-    });
-
-    const output = result.text?.trim();
-    if (!output) {
-      return new Response(JSON.stringify({ error: 'No response from model' }), {
+      });
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME!,
+          Key: `uploads/${jsonFileName}`,
+          Body: JSON.stringify(parsedJson, null, 2),
+          ContentType: 'application/json',
+        })
+      );
+      console.log("doneee");
+    } catch (err) {
+      console.error('Error uploading JSON to S3:', err);
+      return new Response(JSON.stringify({ error: 'Failed to upload JSON to S3', details: err instanceof Error ? err.message : String(err) }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Extract JSON from the model's response
-    const jsonMatch = output.match(/```json\s*([\s\S]*?)\s*```/);
-    if (!jsonMatch) {
-      return new Response(JSON.stringify({ error: 'No JSON found in the model response' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    // Step 8: Delete the downloaded video file
+    try {
+      await fs.unlink(filePath);
+    } catch (err) {
+      console.error('Error deleting downloaded video file:', err);
+      // Don't return error, just log it
     }
-
-    const parsedJson = JSON.parse(jsonMatch[1]);
-    console.log(parsedJson)
-
-    // --- SRT GENERATION ---
-    if (jsonFileName) {
-      const srtContent = captionsToSrt(parsedJson);
-      const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
-      const srtFilePath = path.join('./public/downloads', srtFileName);
-      await fs.writeFile(srtFilePath, srtContent);
-    }
-    // --- END SRT GENERATION ---
-
-    console.log(jsonFileName)
-
-    const s3 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-      },
-    });
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME!,
-        Key: `uploads/${jsonFileName}`,
-        Body: JSON.stringify(parsedJson, null, 2),
-        ContentType: 'application/json',
-
-      })
-    );
-    console.log("doneee")
-
-    // Optional: Delete the downloaded video file
-    await fs.unlink(filePath);
 
     console.log("JSON", jsonFileName)
 
@@ -209,8 +289,8 @@ console.log("before Gemini")
       }
     );
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: `Internal Server Error: ${error}` }), {
+    console.error('API ERROR:', error);
+    return new Response(JSON.stringify({ error: 'Unexpected error in get-captions API', details: error instanceof Error ? error.message : String(error) }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

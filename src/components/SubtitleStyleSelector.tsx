@@ -39,6 +39,7 @@ export const PRESET_STYLES = {
     strokeWidth: "20px",
     strokeColor: "black",
     textTransform: "uppercase" as const,
+    fontFamily: 'Impact, Charcoal, sans-serif',
   },
   minimal: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -47,6 +48,7 @@ export const PRESET_STYLES = {
     strokeWidth: "0px",
     strokeColor: "transparent",
     textTransform: "none" as const,
+    fontFamily: 'Arial, Helvetica, sans-serif',
   },
   neon: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -55,6 +57,7 @@ export const PRESET_STYLES = {
     strokeWidth: "8px",
     strokeColor: "#00ffff",
     textTransform: "uppercase" as const,
+    fontFamily: 'Courier New, Courier, monospace',
   },
   retro: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -63,6 +66,7 @@ export const PRESET_STYLES = {
     strokeWidth: "12px",
     strokeColor: "#2c1810",
     textTransform: "uppercase" as const,
+    fontFamily: 'Georgia, serif',
   },
   elegant: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -71,6 +75,7 @@ export const PRESET_STYLES = {
     strokeWidth: "3px",
     strokeColor: "#343a40",
     textTransform: "none" as const,
+    fontFamily: 'Times New Roman, Times, serif',
   },
   aestheticGlow: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -79,6 +84,7 @@ export const PRESET_STYLES = {
     strokeWidth: "6px",
     strokeColor: "#ffc0cb",
     textTransform: "capitalize" as const,
+    fontFamily: 'Verdana, Geneva, sans-serif',
   },
   boldPop: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -87,6 +93,7 @@ export const PRESET_STYLES = {
     strokeWidth: "14px",
     strokeColor: "#000000",
     textTransform: "uppercase" as const,
+    fontFamily: 'Trebuchet MS, Helvetica, sans-serif',
   },
   cyberWave: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -95,6 +102,7 @@ export const PRESET_STYLES = {
     strokeWidth: "10px",
     strokeColor: "#0f0f0f",
     textTransform: "uppercase" as const,
+    fontFamily: 'Lucida Console, Monaco, monospace',
   },
   pastelSoft: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -103,6 +111,7 @@ export const PRESET_STYLES = {
     strokeWidth: "4px",
     strokeColor: "#fcd5ce",
     textTransform: "capitalize" as const,
+    fontFamily: 'Palatino, Palatino Linotype, serif',
   },
   glassGlow: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -111,6 +120,7 @@ export const PRESET_STYLES = {
     strokeWidth: "6px",
     strokeColor: "rgba(255, 255, 255, 0.4)",
     textTransform: "uppercase" as const,
+    fontFamily: 'Tahoma, Geneva, sans-serif',
   },
   cinematic: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -119,6 +129,7 @@ export const PRESET_STYLES = {
     strokeWidth: "10px",
     strokeColor: "#000000",
     textTransform: "uppercase" as const,
+    fontFamily: 'Arial Black, Gadget, sans-serif',
   },
   dangerZone: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -127,6 +138,7 @@ export const PRESET_STYLES = {
     strokeWidth: "10px",
     strokeColor: "#000000",
     textTransform: "uppercase" as const,
+    fontFamily: 'Copperplate, Papyrus, fantasy',
   },
   vaporwave: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -135,6 +147,7 @@ export const PRESET_STYLES = {
     strokeWidth: "6px",
     strokeColor: "#00ffee",
     textTransform: "uppercase" as const,
+    fontFamily: 'Comic Sans MS, Comic Sans, cursive',
   },
   skyBlue: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -143,6 +156,7 @@ export const PRESET_STYLES = {
     strokeWidth: "5px",
     strokeColor: "#1e90ff",
     textTransform: "capitalize" as const,
+    fontFamily: 'Gill Sans, Gill Sans MT, Calibri, sans-serif',
   },
   funkyGraffiti: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -151,6 +165,7 @@ export const PRESET_STYLES = {
     strokeWidth: "12px",
     strokeColor: "#ff0080",
     textTransform: "uppercase" as const,
+    fontFamily: 'Brush Script MT, cursive',
   },
   luxeGold: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -159,6 +174,7 @@ export const PRESET_STYLES = {
     strokeWidth: "6px",
     strokeColor: "#000000",
     textTransform: "uppercase" as const,
+    fontFamily: 'Optima, Segoe, Segoe UI, Candara, Calibri, Arial, sans-serif',
   },
   ghostWhite: {
     container: { justifyContent: "center", alignItems: "center", left: 0, top: 0, right: undefined, bottom: undefined, height: undefined },
@@ -167,6 +183,7 @@ export const PRESET_STYLES = {
     strokeWidth: "4px",
     strokeColor: "#d3d3d3",
     textTransform: "capitalize" as const,
+    fontFamily: 'Franklin Gothic Medium, Arial Narrow, Arial, sans-serif',
   },
 };
 
@@ -187,6 +204,7 @@ export interface SubtitleStyleConfig {
   strokeWidth: string;
   strokeColor: string;
   textTransform: "none" | "uppercase" | "lowercase" | "capitalize";
+  fontFamily?: string;
 }
 
 export interface SubtitleStyleSelectorProps {
@@ -253,6 +271,7 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
     strokeWidth: customStyle.strokeWidth ?? preset.strokeWidth,
     strokeColor: customStyle.strokeColor ?? preset.strokeColor,
     textTransform: customStyle.textTransform ?? preset.textTransform,
+    fontFamily: customStyle.fontFamily ?? preset.fontFamily,
   };
 
   return (
@@ -325,6 +344,36 @@ export const SubtitleStyleSelector: React.FC<SubtitleStyleSelectorProps> = ({
               value={mergedStyle.strokeColor}
               onChange={(value) => onCustomStyleChange({ ...customStyle, strokeColor: value })}
             />
+          </div>
+          {/* Font Family Picker */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Font Family
+            </label>
+            <select
+              value={mergedStyle.fontFamily || ''}
+              onChange={(e) => onCustomStyleChange({ ...customStyle, fontFamily: e.target.value })}
+              className="w-full px-3 text-gray-800 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a8324a] focus:border-transparent"
+            >
+              <option value="">Default</option>
+              <option value="Arial, Helvetica, sans-serif">Arial / Helvetica</option>
+              <option value="Impact, Charcoal, sans-serif">Impact / Charcoal</option>
+              <option value="Courier New, Courier, monospace">Courier New</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Times New Roman, Times, serif">Times New Roman</option>
+              <option value="Verdana, Geneva, sans-serif">Verdana</option>
+              <option value="Trebuchet MS, Helvetica, sans-serif">Trebuchet MS</option>
+              <option value="Lucida Console, Monaco, monospace">Lucida Console</option>
+              <option value="Palatino, Palatino Linotype, serif">Palatino</option>
+              <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+              <option value="Arial Black, Gadget, sans-serif">Arial Black</option>
+              <option value="Copperplate, Papyrus, fantasy">Copperplate</option>
+              <option value="Comic Sans MS, Comic Sans, cursive">Comic Sans MS</option>
+              <option value="Gill Sans, Gill Sans MT, Calibri, sans-serif">Gill Sans</option>
+              <option value="Brush Script MT, cursive">Brush Script MT</option>
+              <option value="Optima, Segoe, Segoe UI, Candara, Calibri, Arial, sans-serif">Optima</option>
+              <option value="Franklin Gothic Medium, Arial Narrow, Arial, sans-serif">Franklin Gothic Medium</option>
+            </select>
           </div>
           {/* Typography */}
           <div className="space-y-4">
