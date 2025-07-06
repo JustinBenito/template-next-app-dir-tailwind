@@ -37,3 +37,7 @@ next-env.d.ts
 out/
 .env
 build
+
+downloads/
+
+public/downloads/
