@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { exec } from 'child_process';
 import util from 'util';
+import ffmpegPath from 'ffmpeg-static';
 const execPromise = util.promisify(exec);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -90,10 +91,10 @@ export async function GET(request: Request) {
     let processMimeType = videoResponse.headers.get('content-type') || 'video/mp4';
     try {
       if (processMimeType.startsWith('video/')) {
-        // Extract audio using ffmpeg
+        // Extract audio using ffmpeg-static
         const audioFileName = fileName.replace(/\.mp4$/, '.wav');
         const audioFilePath = path.join('./downloads', audioFileName);
-        const ffmpegCmd = `ffmpeg -y -i "${filePath}" -vn -acodec pcm_s16le -ar 44100 -ac 2 "${audioFilePath}"`;
+        const ffmpegCmd = `"${ffmpegPath}" -y -i "${filePath}" -vn -acodec pcm_s16le -ar 44100 -ac 2 "${audioFilePath}"`;
         console.log('Extracting audio with ffmpeg:', ffmpegCmd);
         await execPromise(ffmpegCmd);
         processFilePath = audioFilePath;
