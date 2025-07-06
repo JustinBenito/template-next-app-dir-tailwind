@@ -43,8 +43,9 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
   };
 
   const handleFile = (incomingFile: File) => {
-    if (!incomingFile.type.startsWith("video/")) {
-      alert("Only video files are allowed.");
+    console.log(incomingFile);
+    if (!incomingFile.type.startsWith("video/") && !incomingFile.type.startsWith("audio/")) {
+      alert("Only video and audio files are allowed.");
       return;
     }
 
@@ -148,7 +149,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/*"
+            accept="video/*, audio/*"
             className="hidden"
             onChange={handleFileChange}
           />

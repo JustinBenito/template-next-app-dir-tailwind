@@ -169,7 +169,15 @@ export const Page: React.FC<{
   const { width, fps } = useVideoConfig();
   const timeInMs = (frame / fps) * 1000;
 
-  const currentStyle = styleConfig || STYLES[style];
+  // Helper to ensure fontFamily is always present
+  const getStyleWithFontFamily = (styleObj: SubtitleStyleConfig | (typeof STYLES[keyof typeof STYLES])): SubtitleStyleConfig & { fontFamily: string } => {
+    return {
+      ...styleObj,
+      fontFamily: 'fontFamily' in styleObj && styleObj.fontFamily ? styleObj.fontFamily : 'Arial, Helvetica, sans-serif',
+    };
+  };
+
+  const currentStyle = getStyleWithFontFamily(styleConfig || STYLES[style]);
 
   // Debug log for received styleConfig
   React.useEffect(() => {
@@ -224,7 +232,7 @@ export const Page: React.FC<{
             scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
             translateY(interpolate(enterProgress, [0, 1], [50, 0])),
           ]),
-          fontFamily,
+          fontFamily: currentStyle.fontFamily,
           textTransform: currentStyle.textTransform,
           display: 'inline-block',
         }}

@@ -27,6 +27,10 @@ export const DownloadButton: React.FC<{
     throw new Error("Download button should not be rendered when not done");
   }
 
+  if(state.status === "done" && state.url != null) {
+    console.log(state);
+  }
+
   return (
     <div className="flex">
       <Button secondary onClick={undo}>
@@ -47,7 +51,7 @@ export const DownloadButton: React.FC<{
           href={`downloads/${getSrtFileNameFromUrl(state.url)}`}
           download
         >
-          <Button secondary>
+          <Button secondary onClick={()=>{console.log(state.url)}}>
             Download .srt
           </Button>
         </a>
@@ -59,6 +63,7 @@ export const DownloadButton: React.FC<{
 // Helper to get SRT file name from video URL
 function getSrtFileNameFromUrl(url: string): string {
   // Extract the file name from the URL and replace extension with .srt
+  console.log(url);
   const fileName = url.split('/').pop() || '';
   return fileName.replace(/\.[^.]+$/, '.srt');
 }

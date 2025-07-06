@@ -3,6 +3,7 @@ export const COMP_NAME = "MyComp";
 
 export const CompositionProps = z.object({
   src: z.string(),
+  durationInFrames: z.any().optional(),
   captions: z.array(z.object({
     text: z.string(),
     startMs: z.number(),
@@ -21,6 +22,7 @@ export const CompositionProps = z.object({
 
 export const defaultMyCompProps: z.infer<typeof CompositionProps> = {
   src: "https://storage.googleapis.com/tanglish/sample-video1.mp4",
+  durationInFrames: 400,
   subtitleStyle: "tiktok",
 };
 

@@ -20,6 +20,7 @@ import { SubtitleStyleSelector, SubtitleStyle, SubtitleStyleConfig, PRESET_STYLE
 import { parseMedia } from '@remotion/media-parser';
 import Orb from '../components/Orb';
 import TextCursor from '../components/TextCursor';
+import Modal from "react-modal"
 
 // interface TextPressureProps {
 //   text: string;
@@ -61,6 +62,8 @@ const Home: NextPage = () => {
 
   const [durationInFrames, setDurationInFrames] = useState<number>(600);
 
+  const [showDurationWarning, setShowDurationWarning] = useState(false);
+
   // When user selects a preset, immediately apply it and clear custom style
   const handlePresetSelect = (style: SubtitleStyle) => {
     setSelectedSubtitleStyle(style);
@@ -96,6 +99,7 @@ const Home: NextPage = () => {
   const inputProps = useMemo(() => {
     return {
       src: uploadedURL!,
+      durationInFrames: durationInFrames,
       captions: captions.map(c => ({
         text: c.text,
         startMs: c.startMs,
@@ -143,6 +147,9 @@ const Home: NextPage = () => {
       .then((result) => {
         if (result && result.durationInSeconds) {
           setDurationInFrames(Math.ceil(result.durationInSeconds * VIDEO_FPS));
+          if (result.durationInSeconds > 45) {
+            setShowDurationWarning(true);
+          }
         }
       })
       .catch((err) => {
@@ -210,12 +217,48 @@ const Home: NextPage = () => {
         memeUrl={memImages[0]}
         onClose={() => setModalOpen(false)}
       />
+      {/* Duration warning modal */}
+      <Modal
+        isOpen={showDurationWarning}
+        onRequestClose={() => setShowDurationWarning(false)}
+        ariaHideApp={false}
+        style={{
+          overlay: { backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000 },
+          content: {
+            maxWidth: 400,
+            margin: 'auto',
+            borderRadius: 16,
+            padding: 32,
+            textAlign: 'center',
+            background: '#fff',
+            color: '#a8324a',
+          },
+        }}
+      >
+        <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 16 }}>Large Duration File</h2>
+        <p style={{ color: '#222', marginBottom: 24 }}>
+          This video is longer than 45 seconds. Large duration files are not recommended, but you can go ahead if you wish.
+        </p>
+        <button
+          onClick={() => setShowDurationWarning(false)}
+          style={{
+            background: '#a8324a',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '10px 24px',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Continue
+        </button>
+      </Modal>
       {uploadedURL ? (
         <div className="relative max-w-8xl mt-36 w-full mx-auto mb-24 px-4">
           {/* Floating badge/icon */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
             <div className="bg-gradient-to-r from-[#a8324a] to-[#7b1f2b] text-white px-6 py-2 rounded-full shadow-lg text-sm  md:text-lg font-bold tracking-wide flex items-center gap-2 border-2 border-white/80">
-              
               Tanglish Reel Studio
             </div>
           </div>
