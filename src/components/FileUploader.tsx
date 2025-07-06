@@ -17,7 +17,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
   const [uploadedURL, setUploadedURL] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 50MB
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -43,9 +43,8 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
   };
 
   const handleFile = (incomingFile: File) => {
-    console.log(incomingFile);
-    if (!incomingFile.type.startsWith("video/") && !incomingFile.type.startsWith("audio/")) {
-      alert("Only video and audio files are allowed.");
+    if (!incomingFile.type.startsWith("video/")) {
+      alert("Only video files are allowed.");
       return;
     }
 
@@ -123,7 +122,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
       >
         <div className="relative z-10 flex flex-col items-center text-center">
           <div className="mb-2 rounded-full p-4">
-            <CloudArrowUp className="h-6 w-6 text-amber-300" />
+            <CloudArrowUp className="h-6 w-6 text-red-600" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-white/70">
             {file ? "File ready to submit" : "Upload your video"}
@@ -149,7 +148,7 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/*, audio/*"
+            accept="video/*"
             className="hidden"
             onChange={handleFileChange}
           />

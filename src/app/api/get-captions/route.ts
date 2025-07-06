@@ -5,10 +5,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { exec } from 'child_process';
-import util from 'util';
-import ffmpegPath from 'ffmpeg-static';
-const execPromise = util.promisify(exec);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -87,26 +83,8 @@ export async function GET(request: Request) {
     }
 
     // Step 1.5: If file is video, extract audio
-    let processFilePath = filePath;
-    let processMimeType = videoResponse.headers.get('content-type') || 'video/mp4';
-    try {
-      if (processMimeType.startsWith('video/')) {
-        // Extract audio using ffmpeg-static
-        const audioFileName = fileName.replace(/\.mp4$/, '.wav');
-        const audioFilePath = path.join('./downloads', audioFileName);
-        const ffmpegCmd = `"${ffmpegPath}" -y -i "${filePath}" -vn -acodec pcm_s16le -ar 44100 -ac 2 "${audioFilePath}"`;
-        console.log('Extracting audio with ffmpeg:', ffmpegCmd);
-        await execPromise(ffmpegCmd);
-        processFilePath = audioFilePath;
-        processMimeType = 'audio/wav';
-      }
-    } catch (err) {
-      console.error('Error extracting audio from video:', err);
-      return new Response(JSON.stringify({ error: 'Failed to extract audio from video', details: err instanceof Error ? err.message : String(err) }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const processFilePath = filePath;
+    const processMimeType = videoResponse.headers.get('content-type') || 'video/mp4';
 
     // Step 2: Read the local file and upload to Gemini
     let uploadedFile;
