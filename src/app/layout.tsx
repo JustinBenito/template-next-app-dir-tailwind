@@ -20,6 +20,7 @@ export default function RootLayout({
       <html lang="en">
         <head>
         <Script defer src="https://cloud.umami.is/script.js" data-website-id="dc1b2df7-4965-44e5-845b-5f57306273b7" />
+
           {/* Google Analytics */}
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-R4Z5X7P392"
