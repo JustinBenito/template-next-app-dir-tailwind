@@ -11,8 +11,9 @@ const ButtonForward: React.ForwardRefRenderFunction<
     children: React.ReactNode;
     loading?: boolean;
     secondary?: boolean;
+    className?: string;
   }
-> = ({ onClick, disabled, children, loading, secondary }, ref) => {
+> = ({ onClick, disabled, children, loading, secondary, className }, ref) => {
   return (
     <button
       ref={ref}
@@ -21,6 +22,7 @@ const ButtonForward: React.ForwardRefRenderFunction<
         secondary
           ? "bg-background text-foreground border-unfocused-border-color"
           : undefined,
+        className
       )}
       onClick={onClick}
       disabled={disabled}

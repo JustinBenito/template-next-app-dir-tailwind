@@ -102,7 +102,9 @@ export const Main:React.FC<{
         
         const [subtitleResponse] = result as [Response, void]; // ✅ Type assertion
         
-  
+        if(!subtitleResponse.ok){
+          throw new Error(`Subtitle JSON not found: ${subtitleResponse.status} ${subtitleResponse.statusText}`)
+        }
         const data = await subtitleResponse.json();
         setSubtitles(data);
         setIsReady(true);

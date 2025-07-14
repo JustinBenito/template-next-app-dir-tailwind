@@ -43,8 +43,9 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
   };
 
   const handleFile = (incomingFile: File) => {
-    if (!incomingFile.type.startsWith("video/")) {
-      alert("Only video files are allowed.");
+    console.log(incomingFile.type)
+    if (!incomingFile.type.startsWith("video/") && !incomingFile.type.startsWith("audio/")) {
+      alert("Only video and audio files are allowed.");
       return;
     }
 
@@ -125,12 +126,12 @@ export default function FileDrop({ onUploadComplete, setShowModal, setStepIndex 
             <CloudArrowUp className="h-6 w-6 text-red-600" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-white/70">
-            {file ? "File ready to submit" : "Upload your video"}
+            {file ? "File ready to submit" : "Upload your video or audio"}
           </h3>
           <p className="mb-4 text-sm text-white/50">
             {file
               ? `${file.name} (${(file.size / 1024).toFixed(2)} KB)`
-              : "Drag and drop your video file here (max 50MB), or click to browse"}
+              : "Drag and drop your video/audio file here (max 50MB), or click to browse"}
           </p>
           {file && (
             <button
