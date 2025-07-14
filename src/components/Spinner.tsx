@@ -37,7 +37,7 @@ export const Spinner: React.FC<{
             }}
             key={index}
             d={translated}
-            fill="var(--foreground)"
+            fill="black"
           ></path>
         );
       })}

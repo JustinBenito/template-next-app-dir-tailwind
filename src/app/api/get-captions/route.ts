@@ -37,7 +37,13 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     let videoUrl = searchParams.get('url');
-    const jsonFileName = videoUrl?.replace(/\.mp4$/, '.json')
+    
+    // Handle spaces and special characters in filenames
+    const sanitizedVideoUrl = videoUrl ? decodeURIComponent(videoUrl) : null;
+    const jsonFileName = sanitizedVideoUrl?.replace(
+      /\.(mp4|mov|avi|mkv|wmv|flv|webm|m4v|3gp|ogv|ts|mts|m2ts|mp3|wav|ogg|aac|flac|m4a|wma|aiff|alac)$/i,
+      '.json'
+    );
 
     console.log("URL",`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${videoUrl}`)
     videoUrl=`https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${videoUrl}`
@@ -208,12 +214,15 @@ export async function GET(request: Request) {
     }
 
     // Step 6: SRT GENERATION
+    let srtFileName: string | undefined;
     try {
       if (jsonFileName) {
         const srtContent = captionsToSrt(parsedJson);
-        const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+        srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+        // Ensure the local file path handles spaces properly
         const srtFilePath = path.join('./public/downloads', srtFileName);
         await fs.writeFile(srtFilePath, srtContent);
+        console.log("SRT file generated locally:", srtFileName);
       }
     } catch (err) {
       console.error('Error generating SRT file:', err);
@@ -227,7 +236,7 @@ export async function GET(request: Request) {
     try {
       const s3 = new S3Client({
         region: 'auto',
-        endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
         credentials: {
           accessKeyId: process.env.R2_ACCESS_KEY_ID!,
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
@@ -241,7 +250,7 @@ export async function GET(request: Request) {
           ContentType: 'application/json',
         })
       );
-      console.log("doneee");
+      console.log("JSON uploaded to S3:", jsonFileName);
     } catch (err) {
       console.error('Error uploading JSON to S3:', err);
       return new Response(JSON.stringify({ error: 'Failed to upload JSON to S3', details: err instanceof Error ? err.message : String(err) }), {
@@ -250,7 +259,38 @@ export async function GET(request: Request) {
       });
     }
 
-    // Step 8: Delete the downloaded video file
+    // Step 8: Upload SRT to S3
+    try {
+      if (srtFileName) {
+        const srtContent = captionsToSrt(parsedJson);
+        const s3 = new S3Client({
+          region: 'auto',
+          endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
+          credentials: {
+            accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+            secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+          },
+        });
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME!,
+            Key: `uploads/${srtFileName}`,
+            Body: srtContent,
+            ContentType: 'text/plain',
+            ContentDisposition: `attachment; filename="${srtFileName}"`
+          })
+        );
+        console.log("SRT uploaded to S3:", srtFileName);
+      }
+    } catch (err) {
+      console.error('Error uploading SRT to S3:', err);
+      return new Response(JSON.stringify({ error: 'Failed to upload SRT to S3', details: err instanceof Error ? err.message : String(err) }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Step 9: Delete the downloaded video file
     try {
       await fs.unlink(filePath);
     } catch (err) {
@@ -259,9 +299,16 @@ export async function GET(request: Request) {
     }
 
     console.log("JSON", jsonFileName)
+    console.log("SRT", srtFileName)
 
     return new Response(
-      JSON.stringify({ message: 'JSON uploaded successfully', json: parsedJson }),
+      JSON.stringify({ 
+        message: 'Files uploaded successfully', 
+        json: parsedJson,
+        jsonFileName: jsonFileName,
+        srtFileName: srtFileName,
+        srtUrl: srtFileName ? `https://pub-449b3b5dd7dc457e86e54d9c58eaa858.r2.dev/uploads/${encodeURIComponent(srtFileName)}` : null
+      }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

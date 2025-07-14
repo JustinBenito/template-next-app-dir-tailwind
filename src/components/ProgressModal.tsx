@@ -4,7 +4,7 @@ import { ProgressBar } from "./ProgressBar";
 import Image from "next/image";
 
 const STEP_MESSAGES: Record<string, string> = {
-  uploading: "Uploading your video...",
+  uploading: "Uploading your video/audio...",
   generating: "Generating Tanglish captions...",
   rendering: "Rendering your video with servers ...",
   done: "All done!",
