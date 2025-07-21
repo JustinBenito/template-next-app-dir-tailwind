@@ -48,7 +48,7 @@ export const DownloadButton: React.FC<{
       {/* Download SRT Button */}
       {state.url && (
         <a
-          href={`downloads/${getSrtFileNameFromUrl(state.url)}`}
+          href={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/uploads/${getSrtFileNameFromUrl(state.url)}`}
           download
         >
           <Button secondary onClick={()=>{console.log(state.url)}}>
