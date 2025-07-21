@@ -4,33 +4,39 @@ import fetch from 'node-fetch';
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+// import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // --- SRT GENERATION HELPERS (moved outside handler) ---
-type Caption = {
-  text: string;
-  startMs: number;
-  endMs: number;
-  timestampMs?: number;
-  confidence?: number;
-};
+// type Caption = {
+//   text: string;
+//   startMs: number;
+//   endMs: number;
+//   timestampMs?: number;
+//   confidence?: number;
+// };
 
-function msToSrtTime(ms: number): string {
-  const date = new Date(ms);
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-  const milliseconds = String(ms % 1000).padStart(3, '0');
-  return `${hours}:${minutes}:${seconds},${milliseconds}`;
-}
+// function msToSrtTime(ms: number): string {
+//   const hours = Math.floor(ms / 3600000);
+//   const minutes = Math.floor((ms % 3600000) / 60000);
+//   const seconds = Math.floor((ms % 60000) / 1000);
+//   const milliseconds = ms % 1000;
 
-function captionsToSrt(captions: Caption[]): string {
-  return captions.map((caption, i) => {
-    return `${i + 1}\n${msToSrtTime(caption.startMs)} --> ${msToSrtTime(caption.endMs)}\n${caption.text.trim()}\n`;
-  }).join('\n');
-}
+//   return (
+//     String(hours).padStart(2, '0') + ':' +
+//     String(minutes).padStart(2, '0') + ':' +
+//     String(seconds).padStart(2, '0') + ',' +
+//     String(milliseconds).padStart(3, '0')
+//   );
+// }
+
+
+// function captionsToSrt(captions: Caption[]): string {
+//   return captions.map((caption, i) => {
+//     return `${i + 1}\n${msToSrtTime(caption.startMs)} --> ${msToSrtTime(caption.endMs)}\n${caption.text.trim()}\n`;
+//   }).join('\n');
+// }
 // --- END SRT HELPERS ---
 
 export async function GET(request: Request) {
@@ -97,15 +103,21 @@ export async function GET(request: Request) {
     let mimeType;
     try {
       mimeType = processMimeType;
+      console.log('[Gemini] Uploading file to Gemini:', { processFilePath, mimeType });
       uploadedFile = await ai.files.upload({
         file: processFilePath,
         config: { mimeType },
       });
+      console.log('[Gemini] File uploaded:', uploadedFile);
       if (!uploadedFile.name) {
         throw new Error('File name is undefined');
       }
     } catch (err) {
-      console.error('Error uploading file to Gemini:', err);
+      if (err instanceof Error) {
+        console.error('[Gemini] Error uploading file to Gemini:', err.stack || err.message);
+      } else {
+        console.error('[Gemini] Error uploading file to Gemini:', String(err));
+      }
       return new Response(JSON.stringify({ error: 'Failed to upload file to Gemini', details: err instanceof Error ? err.message : String(err) }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -115,10 +127,10 @@ export async function GET(request: Request) {
     // Step 3: Wait until the file is processed
     let fileState = uploadedFile.state;
     let fileUri = uploadedFile.uri;
-    let maxTries = 12;
+    let maxTries = 24;
     try {
       while (fileState !== 'ACTIVE' && maxTries > 0) {
-        console.log(`Waiting for file to become ACTIVE. Current state: ${fileState}`);
+        console.log(`[Gemini] Waiting for file to become ACTIVE. Current state: ${fileState}, fileUri: ${fileUri}`);
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const updatedFile = await ai.files.get({ name: uploadedFile.name });
         fileState = updatedFile.state;
@@ -128,8 +140,13 @@ export async function GET(request: Request) {
       if (fileState !== 'ACTIVE') {
         throw new Error('File did not become ACTIVE in Gemini API');
       }
+      console.log('[Gemini] File is ACTIVE:', { fileUri });
     } catch (err) {
-      console.error('Error waiting for Gemini file to become ACTIVE:', err);
+      if (err instanceof Error) {
+        console.error('[Gemini] Error waiting for Gemini file to become ACTIVE:', err.stack || err.message);
+      } else {
+        console.error('[Gemini] Error waiting for Gemini file to become ACTIVE:', String(err));
+      }
       return new Response(JSON.stringify({ error: 'Gemini file did not become ACTIVE', details: err instanceof Error ? err.message : String(err) }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -139,57 +156,83 @@ export async function GET(request: Request) {
     // Step 4: Generate content
     let output;
     try {
+      console.log('[Gemini] Calling generateContent with:', { fileUri, mimeType, model: 'gemini-2.5-pro' });
       const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.5-pro',
         contents: createUserContent([
           { fileData: { fileUri, mimeType } },
           { text: `
-          Make this exactly into single tanglish words. I am going to display this as captions in video, so though the content is in tamil, I want to display a transliterated version of it which means I want it to be displayed in tanglish. So give me a tanglish text. Dont give me 1 full sentence in tanglish. I want each word to be broken down and converted to tanglish and should be displayed in the json format I have provided. Dont use english words unless the original speaker has spoken a english word in which case, you can display english. Basically transliterate it in a normal spoke tanglish way. Use this JSON format for response, dont deviate from this JSON format:  
-          {
-    Make sure the milliseconds are accurate I dont want to see any difference in the time in which the text was uttered and the time in which it is displayed.
-    "text": " the word in tanglish with a space as a prefix",
-    "startMs": the start time of the word in milliseconds,
-    "endMs": the end time of the word in milliseconds,
-    "timestampMs": the average of the start and end time in milliseconds,
-    "confidence": the confidence score of the text
-        }
-    Very important: there should be a space as a prefix to each text word. Very Important 
+          Make this exactly into translated English sentences with timestamps. I am going to display this as captions for a podcast video, so though the content is in Tamil, I want to display a translated version of it which means I want it to be displayed in English.
+
+So give me an English text of the spoken Tamil content. Give me 1 full sentence in English with proper aligned timestamps. I want it to be converted to English and should be displayed in normal spoken English for easier understanding.
+
+ Very important: The milliseconds should be accurate — I do not want to see any difference in the time the sentence was uttered and the time it is displayed. The alignment of the timestamps to the original Tamil speech is highly important.
+
+ Output the SRT file like normal SRT.
+
+Each sentence must be displayed as a single SRT entry, with:
+
+    Proper index numbers starting from 1
+
+    Timestamps in this format: 00:00:01,200 --> 00:00:04,300 (use comma for milliseconds, not dot)
+
+    Text must be translated into clear conversational English
+
+    Sentences should be natural, like how someone would speak in English, not word-by-word literal translations
 
     here is an example
-    [
-    { "text": "hey", "startMs": 330, "endMs": 400, "timestampMs": 420, "confidence": 1.0 },
-    { "text": " guys.", "startMs": 500, "endMs": 700, "timestampMs": 500, "confidence": 1.0 },
-    { "text": " na", "startMs": 1040, "endMs": 1170, "timestampMs": 1040, "confidence": 0.963153600692749 },
-    { "text": " inga", "startMs": 1230, "endMs": 1500, "timestampMs": 1230, "confidence": 0.9821343421936035 },
-    { "text": " Flutter", "startMs": 1590, "endMs": 2040, "timestampMs": 1590, "confidence": 0.977540910243988 },
-    { "text": " eventku", "startMs": 2040, "endMs": 2470, "timestampMs": 2040, "confidence": 0.9611732959747314 },
-    { "text": " third", "startMs": 2510, "endMs": 2740, "timestampMs": 2510, "confidence": 0.9724959135055542 },
-    { "text": " time", "startMs": 2740, "endMs": 2890, "timestampMs": 2740, "confidence": 0.9895510077476501 },
-    { "text": " varen.", "startMs": 2890, "endMs": 3260, "timestampMs": 2890, "confidence": 0.9883281588554382 },
-    { "text": " so", "startMs": 3380, "endMs": 3480, "timestampMs": 3380, "confidence": 0.970455527305603 },
-    { "text": " eppayum", "startMs": 3480, "endMs": 3980, "timestampMs": 3480, "confidence": 0.9785779714584351 },
-    { "text": " pola", "startMs": 3980, "endMs": 4250, "timestampMs": 3980, "confidence": 0.9884575605392456 },
-    { "text": " superra", "startMs": 4250, "endMs": 4660, "timestampMs": 4250, "confidence": 0.9728028774261475 },
-    { "text": " panni", "startMs": 4660, "endMs": 4940, "timestampMs": 4660, "confidence": 0.9801964163780212 },
-    { "text": " irukkanga.", "startMs": 4940, "endMs": 5430, "timestampMs": 4940, "confidence": 0.9782485961914062 },
-    { "text": " first", "startMs": 5880, "endMs": 6230, "timestampMs": 5880, "confidence": 0.9451284408569336 },
-    { "text": " year", "startMs": 6230, "endMs": 6450, "timestampMs": 6230, "confidence": 0.9851028919219971 },
-    { "text": " anniversary", "startMs": 6450, "endMs": 7270, "timestampMs": 6450, "confidence": 0.9850393533706665 }
-    ]
+    ```srt 
+    1\n00:00:00,330 --> 00:00:01,420\n hey hi thank you for having me in this podcast\n\n2\n00:00:01,430 --> 00:00:02,560\n absolutely you have been a great SAAS tools developer\n\n3\n00:00:02,580 --> 00:00:04,100\n absolutely, it feels great to be here\n\n4\n00:00:04,101 --> 00:00:06,000\n yes, so jumping into the podcast\n\n5\n00:00:07,300 --> 00:00:08,500\n my first question would be to tell us about yourself\n\n6\n00:00:08,700 --> 00:00:10,200\n sure, so I am Justin and I did my engineering and now I am building my own SaaS called as inforgraphics.co\n\n7\n00:00:10,201 --> 00:00:10,700\n Wow, that is great.\n\n8\n00:00:12,500 --> 00:00:14,000\n Yes it is, I have made around $10000 in ARR\n\n9\n00:00:14,300 --> 00:00:15,400\n So what is ARR exactly ?\n\n10\n00:00:15,700 --> 00:00:16,900\n So ARR means Annual Recurring Revenue\n\n11\n00:00:17,000 --> 00:00:18,700\n Okay, so you get paid annually ?\n\n12\n00:00:19,200 --> 00:00:20,100\n No it is just based on the monthly subscription that users pay\n\n13\n00:00:21,000 --> 00:00:22,400\n but we multiple it by 12 months\n\n14\n00:00:22,600 --> 00:00:23,900\n Oh thats amazing, so 10000 dollars is not easy.\n\n15\n00:00:24,000 --> 00:00:26,000\n how did you manage to build it ?\n\n16\n00:00:26,500 --> 00:00:27,600\n So I didnt have any coding knowledge\n\n17\n00:00:28,000 --> 00:00:29,600\n but I learned it from youtube and built this ```
+  
+]
+
+And the final output should be:
+a SRT file
+
+Again, make sure:
+
+    Timestamps are accurate to the millisecond
+
+    Start and end time match exactly when the spoken Tamil sentence starts and ends
+
+    Sentences are translated, not transliterated
+
+    Output is SRT format, wrapped as a value under "srt" in a single-element JSON array
+
+    Do not include anything else outside the format
+
+Make sure your response can be parsed directly as JSON and embedded in a video caption system.
+
 
     the above is just an example, dont use it anywhere else in response.
+
+    Though the speaker is in Tamil and speaks in tamil, I want you to understand what they speak in tamil and translate it to english as setence level captions. 
+    Remember this is highly important to be accurate, so make sure the timestamps you give are very very accurate in terms of the spoken words and interms of the time it was spoken and everything and is properly converted to minutes, seconds in the srt file generated. 
+
+
+    The most important of them all is you making sure the format of SRT is maintained at HH:MM:SS,mmm for each instance. or else I will doom you to in existence.
+
 
     Important: Make sure the JSON generated has [] to actually parse the JSON data.
     ` },
         ]),
       });
       output = result.text?.trim();
-      console.log("da Output", output)
+      console.log('[Gemini] generateContent output:', output);
+      if (output) {
+        const jsonFilePath = path.join('./public/downloads', "testing_now.txt");
+        await fs.writeFile(jsonFilePath, JSON.stringify(output, null, 2));
+        console.log("JSON file written locally:", jsonFileName);
+      }
       if (!output) {
         throw new Error('No response from model');
       }
     } catch (err) {
-      console.error('Error generating content with Gemini:', err);
+      if (err instanceof Error) {
+        console.error('[Gemini] Error generating content with Gemini:', err.stack || err.message);
+      } else {
+        console.error('[Gemini] Error generating content with Gemini:', String(err));
+      }
       return new Response(JSON.stringify({ error: 'Failed to generate content with Gemini', details: err instanceof Error ? err.message : String(err) }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -198,13 +241,71 @@ export async function GET(request: Request) {
 
     // Step 5: Extract JSON from the model's response
     let parsedJson;
+    let srtFromJson: string | undefined;
     try {
       const jsonMatch = output.match(/```json\s*([\s\S]*?)\s*```/);
       if (!jsonMatch) {
         throw new Error('No JSON found in the model response');
       }
       parsedJson = JSON.parse(jsonMatch[1]);
-      console.log(parsedJson);
+      console.log("this is the parsed", parsedJson);
+      // Write the parsed JSON to public/downloads
+      if (jsonFileName) {
+        const jsonFilePath = path.join('./public/downloads', jsonFileName);
+        await fs.writeFile(jsonFilePath, JSON.stringify(parsedJson, null, 2));
+        console.log("JSON file written locally:", jsonFileName);
+      }
+      // If the output is in the form { srt: <srt> }, decode and write SRT
+      if (parsedJson) {
+        srtFromJson = parsedJson.srt;
+        console.log("the parsed srt:", srtFromJson)
+        // Use AI SDK to check and correct SRT formatting
+        let correctedSrt = srtFromJson;
+        try {
+         // Call Gemini to check and correct SRT formatting
+          const correctionPrompt = `You are an expert in SRT subtitle formatting. Here is an SRT file. Check if every block is in proper SRT format (number, time range in HH:MM:SS,mmm --> HH:MM:SS,mmm, and text). If there are any mistakes, correct them. If it is already correct, return it as is. Only return the corrected SRT file fully, nothing else.\n\n${srtFromJson}`;
+          const correctionResult = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: correctionPrompt
+          });
+          console.log("correction Result:", correctionResult);
+          console.log("corr:", correctionResult.text)
+          if (correctionResult && correctionResult.candidates && correctionResult.candidates[0] && correctionResult.candidates[0].content) {
+            const contentObj = correctionResult.candidates[0].content;
+            console.log("ya",contentObj)
+            if (typeof contentObj === 'object' && contentObj !== null && 'text' in contentObj && typeof (contentObj as { text: unknown }).text === 'string') {
+              console.log("possiblyfix:", (contentObj as { text: string }).text);
+            }
+          }
+          if (correctionResult.text) {
+            correctedSrt = correctionResult.text.toString().trim();
+            console.log("SRT file:", correctedSrt);
+            // Remove any code block markers if present
+            if (correctedSrt.startsWith('```')) {
+              const match = correctedSrt.match(/```(?:srt)?\s*([\s\S]*?)\s*```/);
+              if (match) correctedSrt = match[1].trim();
+            }
+            if (correctedSrt) {
+              const srtFilePath = path.join('./public/downloads', "correctedSRT.srt");
+              await fs.writeFile(srtFilePath, correctedSrt);
+              console.log("SRT file written locally:", jsonFileName);
+            }
+          }
+
+
+
+        } catch (aiErr) {
+          console.error('[Gemini] Error correcting SRT format:', aiErr instanceof Error ? aiErr.stack || aiErr.message : String(aiErr));
+          // Fallback to original SRT if correction fails
+        }
+        // Write the corrected SRT string to a .srt file
+        if (jsonFileName && typeof correctedSrt === 'string') {
+          const srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+          const srtFilePath = path.join('./public/downloads', srtFileName);
+          await fs.writeFile(srtFilePath, correctedSrt);
+          console.log("Corrected SRT file written locally:", srtFileName);
+        }
+      }
     } catch (err) {
       console.error('Error parsing JSON from model response:', err);
       return new Response(JSON.stringify({ error: 'Failed to parse JSON from model response', details: err instanceof Error ? err.message : String(err) }), {
@@ -215,80 +316,80 @@ export async function GET(request: Request) {
 
     // Step 6: SRT GENERATION
     let srtFileName: string | undefined;
-    try {
-      if (jsonFileName) {
-        const srtContent = captionsToSrt(parsedJson);
-        srtFileName = jsonFileName.replace(/\.json$/, '.srt');
-        // Ensure the local file path handles spaces properly
-        const srtFilePath = path.join('./public/downloads', srtFileName);
-        await fs.writeFile(srtFilePath, srtContent);
-        console.log("SRT file generated locally:", srtFileName);
-      }
-    } catch (err) {
-      console.error('Error generating SRT file:', err);
-      return new Response(JSON.stringify({ error: 'Failed to generate SRT file', details: err instanceof Error ? err.message : String(err) }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    // try {
+    //   if (jsonFileName) {
+    //     const srtContent = captionsToSrt(parsedJson);
+    //     srtFileName = jsonFileName.replace(/\.json$/, '.srt');
+    //     // Ensure the local file path handles spaces properly
+    //     const srtFilePath = path.join('./public/downloads', srtFileName);
+    //     await fs.writeFile(srtFilePath, srtContent);
+    //     console.log("SRT file generated locally:", srtFileName);
+    //   }
+    // } catch (err) {
+    //   console.error('Error generating SRT file:', err);
+    //   return new Response(JSON.stringify({ error: 'Failed to generate SRT file', details: err instanceof Error ? err.message : String(err) }), {
+    //     status: 500,
+    //     headers: { 'Content-Type': 'application/json' },
+    //   });
+    // }
 
     // Step 7: Upload JSON to S3
-    try {
-      const s3 = new S3Client({
-        region: 'auto',
-        endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-        },
-      });
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: process.env.R2_BUCKET_NAME!,
-          Key: `uploads/${jsonFileName}`,
-          Body: JSON.stringify(parsedJson, null, 2),
-          ContentType: 'application/json',
-        })
-      );
-      console.log("JSON uploaded to S3:", jsonFileName);
-    } catch (err) {
-      console.error('Error uploading JSON to S3:', err);
-      return new Response(JSON.stringify({ error: 'Failed to upload JSON to S3', details: err instanceof Error ? err.message : String(err) }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    // try {
+    //   const s3 = new S3Client({
+    //     region: 'auto',
+    //     endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
+    //     credentials: {
+    //       accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    //       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    //     },
+    //   });
+    //   await s3.send(
+    //     new PutObjectCommand({
+    //       Bucket: process.env.R2_BUCKET_NAME!,
+    //       Key: `uploads/${jsonFileName}`,
+    //       Body: JSON.stringify(parsedJson, null, 2),
+    //       ContentType: 'application/json',
+    //     })
+    //   );
+    //   console.log("JSON uploaded to S3:", jsonFileName);
+    // } catch (err) {
+    //   console.error('Error uploading JSON to S3:', err);
+    //   return new Response(JSON.stringify({ error: 'Failed to upload JSON to S3', details: err instanceof Error ? err.message : String(err) }), {
+    //     status: 500,
+    //     headers: { 'Content-Type': 'application/json' },
+    //   });
+    // }
 
-    // Step 8: Upload SRT to S3
-    try {
-      if (srtFileName) {
-        const srtContent = captionsToSrt(parsedJson);
-        const s3 = new S3Client({
-          region: 'auto',
-          endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
-          credentials: {
-            accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-            secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-          },
-        });
-        await s3.send(
-          new PutObjectCommand({
-            Bucket: process.env.R2_BUCKET_NAME!,
-            Key: `uploads/${srtFileName}`,
-            Body: srtContent,
-            ContentType: 'text/plain',
-            ContentDisposition: `attachment; filename="${srtFileName}"`
-          })
-        );
-        console.log("SRT uploaded to S3:", srtFileName);
-      }
-    } catch (err) {
-      console.error('Error uploading SRT to S3:', err);
-      return new Response(JSON.stringify({ error: 'Failed to upload SRT to S3', details: err instanceof Error ? err.message : String(err) }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    // // Step 8: Upload SRT to S3
+    // try {
+    //   if (srtFileName) {
+    //     const srtContent = captionsToSrt(parsedJson);
+    //     const s3 = new S3Client({
+    //       region: 'auto',
+    //       endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
+    //       credentials: {
+    //         accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    //         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    //       },
+    //     });
+    //     await s3.send(
+    //       new PutObjectCommand({
+    //         Bucket: process.env.R2_BUCKET_NAME!,
+    //         Key: `uploads/${srtFileName}`,
+    //         Body: srtContent,
+    //         ContentType: 'text/plain',
+    //         ContentDisposition: `attachment; filename="${srtFileName}"`
+    //       })
+    //     );
+    //     console.log("SRT uploaded to S3:", srtFileName);
+    //   }
+    // } catch (err) {
+    //   console.error('Error uploading SRT to S3:', err);
+    //   return new Response(JSON.stringify({ error: 'Failed to upload SRT to S3', details: err instanceof Error ? err.message : String(err) }), {
+    //     status: 500,
+    //     headers: { 'Content-Type': 'application/json' },
+    //   });
+    // }
 
     // Step 9: Delete the downloaded video file
     try {

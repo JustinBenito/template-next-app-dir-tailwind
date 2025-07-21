@@ -283,21 +283,21 @@ function getSrtFileNameFromUrl(url: string): string {
                       </span>
                     </div>
                   ))}
-                </div>
-                
+              </div>
+            
                                   {/* Download SRT Button */}
-                  {inputProps.src && (
+            {inputProps.src && (
                     <div className="mt-4 flex items-center justify-center ">
-                      <a
-                        href={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/uploads/${getSrtFileNameFromUrl(inputProps.src)}`}
-                        download
-                      >
+                <a
+                  href={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/uploads/${getSrtFileNameFromUrl(inputProps.src)}`}
+                  download
+                >
                         <Button secondary className="px-8 py-4 text-lg font-bold rounded-xl">
-                          Download .srt
-                        </Button>
-                      </a>
+                    Download .srt
+                  </Button>
+                </a>
                     </div>
-                  )}
+              )}
               </div>
 
 
