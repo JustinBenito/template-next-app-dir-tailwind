@@ -41,7 +41,7 @@ export const RenderControls: React.FC<{
               {/* Download SRT Button */}
               {inputProps.src && (
                 <a
-                  href={`downloads/${getSrtFileNameFromUrl(inputProps.src)}`}
+                  href={`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/uploads/${getSrtFileNameFromUrl(inputProps.src)}`}
                   download
                 >
                   <Button secondary disabled={state.status === "invoking"}>
